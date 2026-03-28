@@ -12,7 +12,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #1a4d5e 0%, #0e3f4f 100%);
+            background: linear-gradient(135deg, #0f2f3a 0%, #1a4d5e 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -32,17 +32,313 @@
             border-radius: 48px;
             padding: 48px 32px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transition: transform 0.2s;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
         }
 
         /* Überschrift */
-        h1 {
-            font-size: 3rem;
+        .logo {
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-size: 3.2rem;
             font-weight: 800;
             background: linear-gradient(135deg, #f5a623, #e67e22);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 8px;
-            letter-spacing
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: #6b8f9c;
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+
+        /* Feature-Badge */
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 28px 0 32px;
+        }
+
+        .feature-badge {
+            background: #f8f9fc;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c6b7c;
+            border: 1px solid #eef2f5;
+        }
+
+        /* Buttons */
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 60px;
+            padding: 18px 24px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+        }
+
+        .btn-solo {
+            background: #2c6b7c;
+            color: white;
+            box-shadow: 0 6px 0 #15424f;
+        }
+
+        .btn-pvp {
+            background: #e67e22;
+            color: white;
+            box-shadow: 0 6px 0 #b45f1b;
+        }
+
+        .btn-leaderboard {
+            background: #e9ecef;
+            color: #2c6b7c;
+            box-shadow: 0 4px 0 #cbd5e0;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        /* Leaderboard Panel */
+        .leaderboard-panel {
+            background: white;
+            border-radius: 32px;
+            margin-top: 20px;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: #f8f9fc;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .leaderboard-header h3 {
+            font-size: 1.2rem;
+            color: #1a4d5e;
+        }
+
+        .close-leaderboard {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #8ba0aa;
+            padding: 0 8px;
+        }
+
+        .leaderboard-list {
+            padding: 8px 0;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .rank-number {
+            width: 55px;
+            font-weight: 700;
+            color: #8ba0aa;
+            font-size: 1rem;
+        }
+
+        .rank-name {
+            flex: 1;
+            font-weight: 500;
+            color: #2c5a6e;
+        }
+
+        .rank-score {
+            font-weight: 700;
+            color: #f5a623;
+            font-size: 1.1rem;
+        }
+
+        .rank-item.top-1 { background: #fff9ef; border-radius: 16px; margin: 4px 12px; }
+        .rank-item.top-1 .rank-number { color: #f5a623; font-size: 1.2rem; }
+        .rank-item.top-2 .rank-number { color: #9b9b9b; }
+        .rank-item.top-3 .rank-number { color: #cd7b4f; }
+
+        .empty-leaderboard {
+            text-align: center;
+            padding: 40px;
+            color: #8ba0aa;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="main-card">
+        <div class="logo">
+            <h1>⚡ NUMBER RUSH</h1>
+            <p>Kopfrechnen • Schnell • Weltweit</p>
+        </div>
+
+        <div class="features">
+            <span class="feature-badge">🎯 +10 Punkte pro Treffer</span>
+            <span class="feature-badge">⏱️ +0.8 Sekunden Bonus</span>
+            <span class="feature-badge">⚔️ PvP-Duell</span>
+            <span class="feature-badge">🏆 Weltweite Bestenliste</span>
+        </div>
+
+        <div class="mode-buttons">
+            <button class="btn btn-solo" id="soloModeBtn">🎮 SOLO-MODUS</button>
+            <button class="btn btn-pvp" id="pvpModeBtn">⚔️ PVP-MODUS</button>
+        </div>
+
+        <button class="btn btn-leaderboard" id="showLeaderboardBtn">🏆 BESTENLISTE ANSEHEN</button>
+    </div>
+
+    <!-- Leaderboard Panel -->
+    <div id="leaderboardPanel" class="leaderboard-panel">
+        <div class="leaderboard-header">
+            <h3>🏆 BESTENLISTE (SOLO)</h3>
+            <button id="closeLeaderboardBtn" class="close-leaderboard">✕</button>
+        </div>
+        <div id="leaderboardList" class="leaderboard-list">
+            <div class="empty-leaderboard">Lade Bestenliste...</div>
+        </div>
+    </div>
+    <footer>⚡ Schnell rechnen = mehr Punkte | PvP: Wer in 30 Sekunden mehr Punkte hat, gewinnt!</footer>
+</div>
+
+<script>
+    // Firebase Konfiguration
+    const firebaseConfig = {
+        apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
+        authDomain: "mathnumberrush.firebaseapp.com",
+        databaseURL: "https://mathnumberrush-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mathnumberrush",
+        storageBucket: "mathnumberrush.firebasestorage.app",
+        messagingSenderId: "1072751880887",
+        appId: "1:1072751880887:web:b9ab1a74c6f40a6620bb32",
+        measurementId: "G-3QDHYZHNCY"
+    };
+
+    // Firebase initialisieren
+    if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    }
+
+    const db = firebase.apps.length ? firebase.database() : null;
+    const scoresRef = db ? db.ref('scores') : null;
+
+    function loadLeaderboard() {
+        if (!scoresRef) {
+            document.getElementById('leaderboardList').innerHTML = '<div class="empty-leaderboard">Datenbank nicht verfügbar</div>';
+            return;
+        }
+        
+        scoresRef.orderByChild('score').limitToLast(10).once('value', (snapshot) => {
+            const scores = [];
+            snapshot.forEach((child) => {
+                const val = child.val();
+                if (val && val.name && typeof val.score === 'number') {
+                    scores.push({ name: val.name, score: val.score });
+                }
+            });
+            scores.sort((a, b) => b.score - a.score);
+            
+            const container = document.getElementById('leaderboardList');
+            if (scores.length === 0) {
+                container.innerHTML = '<div class="empty-leaderboard">✨ Keine Einträge. Sei der Erste!</div>';
+                return;
+            }
+            
+            let html = '';
+            scores.forEach((entry, idx) => {
+                let rankClass = '';
+                if (idx === 0) rankClass = 'top-1';
+                else if (idx === 1) rankClass = 'top-2';
+                else if (idx === 2) rankClass = 'top-3';
+                html += `
+                    <div class="rank-item ${rankClass}">
+                        <div class="rank-number">${idx + 1}.</div>
+                        <div class="rank-name">${escapeHtml(entry.name)}</div>
+                        <div class="rank-score">${entry.score}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }).catch(() => {
+            document.getElementById('leaderboardList').innerHTML = '<div class="empty-leaderboard">Fehler beim Laden</div>';
+        });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showLeaderboard() {
+        loadLeaderboard();
+        document.getElementById('leaderboardPanel').style.display = 'block';
+    }
+
+    function hideLeaderboard() {
+        document.getElementById('leaderboardPanel').style.display = 'none';
+    }
+
+    // Event Listener
+    document.getElementById('soloModeBtn').addEventListener('click', () => {
+        window.location.href = 'solo.html';
+    });
+    
+    document.getElementById('pvpModeBtn').addEventListener('click', () => {
+        window.location.href = 'pvp.html';
+    });
+    
+    document.getElementById('showLeaderboardBtn').addEventListener('click', showLeaderboard);
+    document.getElementById('closeLeaderboardBtn').addEventListener('click', hideLeaderboard);
+    
+    // Klick außerhalb schließen
+    window.addEventListener('click', (e) => {
+        const panel = document.getElementById('leaderboardPanel');
+        if (e.target === panel) hideLeaderboard();
+    });
+    
+    loadLeaderboard();
+</script>
+</body>
+</html>
