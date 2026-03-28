@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Number Rush • PvP-Modus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2f3a 0%, #1a4d5e 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* Karten */
+        .card {
+            background: white;
+            border-radius: 48px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Header */
+        .stats {
+            background: linear-gradient(135deg, #1e3e4a, #153b46);
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 60px;
+            padding: 6px 20px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: #b9dfed;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ffdd99;
+        }
+
+        /* Gegner-Bereich */
+        .opponent-area {
+            background: #f8f9fc;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .opponent-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vs-badge {
+            background: #e67e22;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .opponent-name {
+            font-weight: 700;
+            color: #2c6b7c;
+            font-size: 1rem;
+        }
+
+        .opponent-score-box {
+            background: #e9ecef;
+            padding: 6px 16px;
+            border-radius: 40px;
+        }
+
+        .opponent-score-label {
+            font-size: 0.7rem;
+            color: #8ba0aa;
+        }
+
+        .opponent-score-value {
+            font-weight: 800;
+            color: #e67e22;
+            font-size: 1.2rem;
+        }
+
+        /* Fragebereich */
+        .question-area {
+            padding: 32px 24px 24px;
+            background: white;
+        }
+
+        .equation {
+            background: #f8f9fc;
+            border-radius: 48px;
+            padding: 28px 20px;
+            text-align: center;
+            border: 1px solid #eef2f5;
+        }
+
+        .equation-text {
+            font-size: 2.8rem;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            color: #2c6b7c;
+            letter-spacing: 3px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .answer-input {
+            flex: 1;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 60px;
+            font-size: 1.6rem;
+            padding: 14px 20px;
+            text-align: center;
+            font-weight: 600;
+            font-family: monospace;
+            outline: none;
+        }
+
+        .answer-input:focus {
+            border-color: #f5a623;
+            box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
+        }
+
+        .submit-btn {
+            background: #f5a623;
+            border: none;
+            border-radius: 60px;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #b4621a;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #b4621a;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            flex: 1;
+            background: #e9ecef;
+            border: none;
+            border-radius: 60px;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a6f7c;
+            cursor: pointer;
+        }
+
+        .feedback {
+            background: #f8f9fc;
+            border-radius: 40px;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #5a7e8c;
+            margin-bottom: 16px;
+        }
+
+        /* Wartebereich */
+        .waiting-area {
+            padding: 60px 32px;
+            text-align: center;
+            background: white;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #eef2f5;
+            border-top-color: #f5a623;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .waiting-text {
+            font-size: 1.1rem;
+            color: #2c6b7c;
+            margin-bottom: 8px;
+        }
+
+        .waiting-sub {
+            color: #8ba0aa;
+            font-size: 0.85rem;
+        }
+
+        /* Modal für Namenseingabe */
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 48px;
+            padding: 40px 32px;
+            max-width: 340px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            font-size: 1.8rem;
+            color: #1a4d5e;
+            margin-bottom: 16px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 60px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 20px 0;
+            outline: none;
+        }
+
+        .modal-content input:focus {
+            border-color: #f5a623;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal-btn-primary {
+            background: #f5a623;
+            color: white;
+            box-shadow: 0 4px 0 #b4621a;
+            transform: translateY(-2px);
+        }
+
+        .modal-btn-primary:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b4621a;
+        }
+
+        .modal-btn-secondary {
+            background: #e9ecef;
+            color: #2c6b7c;
+        }
+
+        .streak-area {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 16px 24px;
+            border-top: 1px solid #eef2f5;
+            background: white;
+        }
+
+        .streak-item {
+            text-align: center;
+        }
+
+        .streak-label {
+            font-size: 0.7rem;
+            color: #8ba0aa;
+        }
+
+        .streak-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #f5a623;
+        }
+
+        @keyframes correctFlash {
+            0% { background: #f8f9fc; }
+            50% { background: #d4edda; }
+            100% { background: #f8f9fc; }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); background: #f8f9fc; }
+            25% { transform: translateX(4px); background: #ffe0e0; }
+            75% { transform: translateX(-4px); background: #ffe0e0; }
+        }
+
+        .correct-animation { animation: correctFlash 0.25s ease; }
+        .wrong-animation { animation: wrongShake 0.25s ease; }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 16px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Namenseingabe Modal -->
+    <div id="nameModal" class="modal">
+        <div class="modal-content">
+            <h2>⚔️ PVP-DUELL</h2>
+            <p>Gib deinen Namen ein</p>
+            <input type="text" id="playerNameInput" maxlength="20" placeholder="Dein Name" autocomplete="off">
+            <div class="modal-buttons">
+                <button id="confirmNameBtn" class="modal-btn modal-btn-primary">SUCHEN</button>
+                <button id="cancelNameBtn" class="modal-btn modal-btn-secondary">ZURÜCK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wartebildschirm -->
+    <div id="waitingScreen" class="card" style="display: none;">
+        <div class="waiting-area">
+            <div class="spinner"></div>
+            <div class="waiting-text">🔍 Gegner wird gesucht...</div>
+            <div class="waiting-sub">Warte auf einen anderen Spieler</div>
+            <button id="cancelWaitingBtn" class="btn-action" style="margin-top: 32px;">ABBRECHEN</button>
+        </div>
+    </div>
+
+    <!-- Spielansicht -->
+    <div id="gameScreen" class="game-screen" style="display: none;">
+        <div class="card">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">DEINE PUNKTE</div>
+                    <div class="stat-value" id="myScore">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">ZEIT</div>
+                    <div class="stat-value" id="timerValue">30.0</div>
+                </div>
+            </div>
+
+            <div class="opponent-area" id="opponentArea">
+                <div class="opponent-info">
+                    <span class="vs-badge">VS</span>
+                    <span class="opponent-name" id="opponentName">Gegner</span>
+                </div>
+                <div class="opponent-score-box">
+                    <div class="opponent-score-label">PUNKTE</div>
+                    <div class="opponent-score-value" id="opponentScore">0</div>
+                </div>
+            </div>
+
+            <div class="question-area">
+                <div class="equation" id="equationBlock">
+                    <div class="equation-text" id="questionText">8 + 3 = ?</div>
+                </div>
+
+                <div class="input-area">
+                    <input type="number" id="answerInput" class="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
+                    <button id="submitBtn" class="submit-btn">✓</button>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="exitPvpBtn" class="btn-action">🏠 MENÜ</button>
+                </div>
+
+                <div class="feedback" id="feedbackMsg">
+                    👆 Tippe die Lösung
+                </div>
+            </div>
+
+            <div class="streak-area">
+                <div class="streak-item">
+                    <div class="streak-label">🔥 SERIE</div>
+                    <div class="streak-value" id="streakValue">0</div>
+                </div>
+                <div class="streak-item">
+                    <div class="streak-label">🏆 BESTE</div>
+                    <div class="streak-value" id="bestStreakValue">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>⚡ 30 Sekunden Duell • Wer mehr Punkte hat, gewinnt!</footer>
+</div>
+
+<script>
+    // Firebase Konfiguration
+    const firebaseConfig = {
+        apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
+        authDomain: "mathnumberrush.firebaseapp.com",
+        databaseURL: "https://mathnumberrush-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mathnumberrush",
+        storageBucket: "mathnumberrush.firebasestorage.app",
+        messagingSenderId: "1072751880887",
+        appId: "1:1072751880887:web:b9ab1a74c6f40a6620bb32",
+        measurementId: "G-3QDHYZHNCY"
+    };
+
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.apps.length ? firebase.database() : null;
+
+    // Spielparameter
+    const START_TIME = 30.0;
+    const POINTS = 10;
+    const TIME_BONUS = 0.8;
+    const PENALTY = 1.8;
+    const MAX_TIME = 45.0;
+
+    // DOM Elemente
+    const nameModal = document.getElementById('nameModal');
+    const waitingScreen = document.getElementById('waitingScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const myScoreSpan = document.getElementById('myScore');
+    const timerValue = document.getElementById('timerValue');
+    const questionText = document.getElementById('questionText');
+    const answerInput = document.getElementById('answerInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const exitPvpBtn = document.getElementById('exitPvpBtn');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    const streakValue = document.getElementById('streakValue');
+    const bestStreakValue = document.getElementById('bestStreakValue');
+    const opponentNameSpan = document.getElementById('opponentName');
+    const opponentScoreSpan = document.getElementById('opponentScore');
+    const equationBlock = document.getElementById('equationBlock');
+
+    // Spielzustand
+    let score = 0;
+    let time = START_TIME;
+    let gameActive = false;
+    let timerInterval = null;
+    let streak = 0;
+    let bestStreak = 0;
+    let currentQuestion = { text: "", answer: 0 };
+    
+    // PvP spezifisch
+    let playerId = null;
+    let matchId = null;
+    let opponentId = null;
+    let matchStarted = false;
+    let gameEnded = false;
+
+    const ops = ['+', '−', '×'];
+
+    function random(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getDifficulty() {
+        if (score < 70) return 1;
+        if (score < 180) return 2;
+        if (score < 350) return 3;
+        if (score < 550) return 4;
+        return 5;
+    }
+
+    function newQuestion() {
+        const difficulty = getDifficulty();
+        const op = ops[Math.floor(Math.random() * ops.length)];
+        let a, b, answer;
+        let minV, maxV;
+
+        switch(difficulty) {
+            case 1: minV = 1; maxV = 12; break;
+            case 2: minV = 2; maxV = 18; break;
+            case 3: minV = 4; maxV = 28; break;
+            case 4: minV = 8; maxV = 42; break;
+            default: minV = 12; maxV = 65;
+        }
+
+        if (op === '×') {
+            let limit = difficulty <= 2 ? 12 : 15;
+            a = random(2, limit);
+            b = random(2, limit);
+            answer = a * b;
+        } else if (op === '+') {
+            a = random(minV, maxV);
+            b = random(minV, maxV);
+            answer = a + b;
+        } else {
+            a = random(minV, maxV);
+            b = random(minV, maxV);
+            if (a >= b) {
+                answer = a - b;
+            } else {
+                let temp = a;
+                a = b;
+                b = temp;
+                answer = a - b;
+            }
+        }
+        
+        let sym = op === '×' ? '×' : op;
+        return { text: `${a} ${sym} ${b}`, answer: answer };
+    }
+
+    function updateUI() {
+        questionText.innerText = currentQuestion.text + " = ?";
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!gameActive) return;
+            if (time <= 0.01) {
+                time = 0;
+                timerValue.innerText = "0.0";
+                endGame();
+            } else {
+                time = Math.max(0, time - 0.1);
+                timerValue.innerText = time.toFixed(1);
+            }
+        }, 100);
+    }
+
+    async function endGame() {
+        if (gameEnded) return;
+        gameEnded = true;
+        gameActive = false;
+        if (timerInterval) clearInterval(timerInterval);
+        answerInput.disabled = true;
+        submitBtn.disabled = true;
+        
+        if (matchId && playerId && db) {
+            await db.ref(`matches/${matchId}/players/${playerId}/finished`).set(true);
+            await db.ref(`matches/${matchId}/players/${playerId}/finalScore`).set(score);
+            
+            const matchSnapshot = await db.ref(`matches/${matchId}`).once('value');
+            const match = matchSnapshot.val();
+            if (match && match.players) {
+                const players = match.players;
+                const playerIds = Object.keys(players);
+                if (players[playerIds[0]]?.finished && players[playerIds[1]]?.finished) {
+                    const p1Score = players[playerIds[0]].finalScore || 0;
+                    const p2Score = players[playerIds[1]].finalScore || 0;
+                    const isPlayer1 = playerId === playerIds[0];
+                    const myFinalScore = isPlayer1 ? p1Score : p2Score;
+                    const oppFinalScore = isPlayer1 ? p2Score : p1Score;
+                    
+                    if (myFinalScore > oppFinalScore) {
+                        feedbackMsg.innerHTML = "🏆 DU HAST GEWONNEN! 🏆";
+                        feedbackMsg.style.background = "#e8f5e9";
+                    } else if (myFinalScore < oppFinalScore) {
+                        feedbackMsg.innerHTML = "😔 DU HAST VERLOREN! 😔";
+                        feedbackMsg.style.background = "#ffebee";
+                    } else {
+                        feedbackMsg.innerHTML = "🤝 UNENTSCHIEDEN! 🤝";
+                        feedbackMsg.style.background = "#fff3e0";
+                    }
+                    await db.ref(`matches/${matchId}`).remove();
+                } else {
+                    feedbackMsg.innerHTML = "⏳ Warte auf Gegner...";
+                }
+            }
+        }
+    }
+
+    function correctAnswer() {
+        score += POINTS;
+        myScoreSpan.innerText = score;
+
+        streak++;
+        streakValue.innerText = streak;
+        if (streak > bestStreak) {
+            bestStreak = streak;
+            bestStreakValue.innerText = bestStreak;
+        }
+
+        time = Math.min(time + TIME_BONUS, MAX_TIME);
+        timerValue.innerText = time.toFixed(1);
+
+        feedbackMsg.innerHTML = "✓ RICHTIG! +10 Punkte";
+        feedbackMsg.style.background = "#e8f5e9";
+        equationBlock.classList.add('correct-animation');
+        setTimeout(() => equationBlock.classList.remove('correct-animation'), 250);
+
+        if (matchId && playerId && db) {
+            db.ref(`matches/${matchId}/players/${playerId}/score`).set(score);
+        }
+
+        currentQuestion = newQuestion();
+        updateUI();
+        answerInput.value = '';
+        answerInput.focus();
+
+        setTimeout(() => {
+            if (gameActive) {
+                feedbackMsg.innerHTML = "⚡ Weiter so!";
+                feedbackMsg.style.background = "#f8f9fc";
+            }
+        }, 800);
+    }
+
+    function wrongAnswer() {
+        streak = 0;
+        streakValue.innerText = streak;
+
+        time = Math.max(0, time - PENALTY);
+        timerValue.innerText = time.toFixed(1);
+
+        if (time <= 0.01) {
+            endGame();
+            return;
+        }
+
+        feedbackMsg.innerHTML = `❌ Lösung: ${currentQuestion.answer}  -${PENALTY}s`;
+        feedbackMsg.style.background = "#ffebee";
+        equationBlock.classList.add('wrong-animation');
+        setTimeout(() => equationBlock.classList.remove('wrong-animation'), 250);
+
+        currentQuestion = newQuestion();
+        updateUI();
+        answerInput.value = '';
+        answerInput.focus();
+
+        setTimeout(() => {
+            if (gameActive) {
+                feedbackMsg.innerHTML = "💪 Nächste Aufgabe!";
+                feedbackMsg.style.background = "#f8f9fc";
+            }
+        }, 1200);
+    }
+
+    function checkAnswer() {
+        if (!gameActive) return;
+        let raw = answerInput.value.trim();
+        if (raw === "") {
+            feedbackMsg.innerHTML = "📝 Zahl eingeben";
+            return;
+        }
+        let num = Number(raw);
+        if (isNaN(num)) {
+            feedbackMsg.innerHTML = "🔢 Nur Zahlen";
+            answerInput.value = '';
+            return;
+        }
+        if (num === currentQuestion.answer) {
+            correctAnswer();
+        } else {
+            wrongAnswer();
+        }
+    }
+
+    async function startMatchmaking(playerName) {
+        playerId = Date.now().toString() + Math.random().toString(36).substr(2, 6);
+        matchId = Date.now().toString();
+        
+        await db.ref(`matches/${matchId}/players/${playerId}`).set({
+            name: playerName,
+            score: 0,
+            finished: false,
+            finalScore: 0,
+            joinedAt: Date.now()
+        });
+        
+        db.ref(`matches/${matchId}/players`).on('value', async (snapshot) => {
+            const players = snapshot.val();
+            if (players && Object.keys(players).length === 2 && !matchStarted) {
+                matchStarted = true;
+                waitingScreen.style.display = 'none';
+                gameScreen.style.display = 'block';
+                
+                const opponent = Object.keys(players).find(id => id !== playerId);
+                opponentId = opponent;
+                const opponentData = players[opponent];
+                opponentNameSpan.innerText = opponentData.name;
+                
+                db.ref(`matches/${matchId}/players/${opponentId}/score`).on('value', (snap) => {
+                    opponentScoreSpan.innerText = snap.val() || 0;
+                });
+                
+                db.ref(`matches/${matchId}/players/${opponentId}/finished`).on('value', (snap) => {
+                    if (snap.val() === true && !gameEnded) endGame();
+                });
+                
+                startGame();
+            }
+        });
+        
+        setTimeout(() => {
+            if (!matchStarted) {
+                cancelMatchmaking();
+                alert("⏰ Kein Gegner gefunden. Bitte versuche es später erneut.");
+                window.location.href = 'index.html';
+            }
+        }, 30000);
+    }
+
+    async function cancelMatchmaking() {
+        if (matchId && playerId && db) {
+            await db.ref(`matches/${matchId}/players/${playerId}`).remove();
+            const remaining = await db.ref(`matches/${matchId}/players`).once('value');
+            if (!remaining.exists()) {
+                await db.ref(`matches/${matchId}`).remove();
+            }
+        }
+    }
+
+    function startGame() {
+        gameActive = true;
+        score = 0;
+        time = START_TIME;
+        streak = 0;
+        bestStreak = 0;
+        myScoreSpan.innerText = "0";
+        timerValue.innerText = time.toFixed(1);
+        streakValue.innerText = "0";
+        bestStreakValue.innerText = "0";
+        answerInput.disabled = false;
+        submitBtn.disabled = false;
+        answerInput.value = '';
+        currentQuestion = newQuestion();
+        updateUI();
+        startTimer();
+        feedbackMsg.innerHTML = "⚔️ KAMPF BEGINNT! Schnell rechnen!";
+        feedbackMsg.style.background = "#f8f9fc";
+        answerInput.focus();
+    }
+
+    function exitToMenu() {
+        if (timerInterval) clearInterval(timerInterval);
+        if (matchId && playerId && db) {
+            cancelMatchmaking();
+        }
+        window.location.href = 'index.html';
+    }
+
+    // Event Listener
+    document.getElementById('confirmNameBtn').addEventListener('click', () => {
+        const playerName = document.getElementById('playerNameInput').value.trim();
+        if (!playerName) {
+            alert("Bitte gib deinen Namen ein!");
+            return;
+        }
+        nameModal.style.display = 'none';
+        waitingScreen.style.display = 'block';
+        startMatchmaking(playerName);
+    });
+    
+    document.getElementById('cancelNameBtn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+    
+    document.getElementById('cancelWaitingBtn').addEventListener('click', () => {
+        cancelMatchmaking();
+        window.location.href = 'index.html';
+    });
+    
+    submitBtn.addEventListener('click', checkAnswer);
+    exitPvpBtn.addEventListener('click', exitToMenu);
+    
+    answerInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && gameActive) {
+            checkAnswer();
+        }
+    });
+    
+    // Modal anzeigen
+    nameModal.style.display = 'flex';
+</script>
+</body>
+</html>
