@@ -36,10 +36,6 @@
         }
 
         /* Überschrift */
-        .logo {
-            margin-bottom: 16px;
-        }
-
         .logo h1 {
             font-size: 3.2rem;
             font-weight: 800;
@@ -48,6 +44,7 @@
             background-clip: text;
             color: transparent;
             letter-spacing: -0.5px;
+            margin-bottom: 8px;
         }
 
         .logo p {
@@ -62,7 +59,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 12px;
-            margin: 28px 0 32px;
+            margin: 32px 0 32px;
         }
 
         .feature-badge {
@@ -320,15 +317,19 @@
         document.getElementById('leaderboardPanel').style.display = 'none';
     }
 
-    // Event Listener
-    document.getElementById('soloModeBtn').addEventListener('click', () => {
+    // Navigation zu Solo-Modus
+    function goToSolo() {
         window.location.href = 'solo.html';
-    });
-    
-    document.getElementById('pvpModeBtn').addEventListener('click', () => {
+    }
+
+    // Navigation zu PvP-Modus
+    function goToPvP() {
         window.location.href = 'pvp.html';
-    });
-    
+    }
+
+    // Event Listener
+    document.getElementById('soloModeBtn').addEventListener('click', goToSolo);
+    document.getElementById('pvpModeBtn').addEventListener('click', goToPvP);
     document.getElementById('showLeaderboardBtn').addEventListener('click', showLeaderboard);
     document.getElementById('closeLeaderboardBtn').addEventListener('click', hideLeaderboard);
     
