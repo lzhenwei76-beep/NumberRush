@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Number Rush • Modus-Auswahl</title>
+    <!-- Firebase SDKs müssen geladen werden -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -26,7 +29,6 @@
             width: 100%;
         }
 
-        /* Hauptkarte */
         .main-card {
             background: white;
             border-radius: 48px;
@@ -35,7 +37,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
         }
 
-        /* Überschrift */
         .logo h1 {
             font-size: 3.2rem;
             font-weight: 800;
@@ -43,23 +44,20 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            letter-spacing: -0.5px;
             margin-bottom: 8px;
         }
 
         .logo p {
             color: #6b8f9c;
             font-size: 0.95rem;
-            margin-top: 8px;
         }
 
-        /* Feature-Badge */
         .features {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 12px;
-            margin: 32px 0 32px;
+            margin: 32px 0;
         }
 
         .feature-badge {
@@ -72,7 +70,6 @@
             border: 1px solid #eef2f5;
         }
 
-        /* Buttons */
         .mode-buttons {
             display: flex;
             flex-direction: column;
@@ -117,7 +114,6 @@
             width: 100%;
         }
 
-        /* Leaderboard Panel */
         .leaderboard-panel {
             background: white;
             border-radius: 32px;
@@ -167,7 +163,6 @@
             width: 55px;
             font-weight: 700;
             color: #8ba0aa;
-            font-size: 1rem;
         }
 
         .rank-name {
@@ -179,14 +174,10 @@
         .rank-score {
             font-weight: 700;
             color: #f5a623;
-            font-size: 1.1rem;
         }
 
         .rank-item.top-1 { background: #fff9ef; border-radius: 16px; margin: 4px 12px; }
-        .rank-item.top-1 .rank-number { color: #f5a623; font-size: 1.2rem; }
-        .rank-item.top-2 .rank-number { color: #9b9b9b; }
-        .rank-item.top-3 .rank-number { color: #cd7b4f; }
-
+        .rank-item.top-1 .rank-number { color: #f5a623; }
         .empty-leaderboard {
             text-align: center;
             padding: 40px;
@@ -224,7 +215,6 @@
         <button class="btn btn-leaderboard" id="showLeaderboardBtn">🏆 BESTENLISTE ANSEHEN</button>
     </div>
 
-    <!-- Leaderboard Panel -->
     <div id="leaderboardPanel" class="leaderboard-panel">
         <div class="leaderboard-header">
             <h3>🏆 BESTENLISTE (SOLO)</h3>
@@ -251,13 +241,12 @@
     };
 
     // Firebase initialisieren
-    if (typeof firebase !== 'undefined') {
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase initialisiert");
     }
 
-    const db = firebase.apps.length ? firebase.database() : null;
+    const db = (typeof firebase !== 'undefined' && firebase.apps.length) ? firebase.database() : null;
     const scoresRef = db ? db.ref('scores') : null;
 
     function loadLeaderboard() {
@@ -297,7 +286,8 @@
                 `;
             });
             container.innerHTML = html;
-        }).catch(() => {
+        }).catch((err) => {
+            console.error("Fehler beim Laden:", err);
             document.getElementById('leaderboardList').innerHTML = '<div class="empty-leaderboard">Fehler beim Laden</div>';
         });
     }
@@ -317,26 +307,53 @@
         document.getElementById('leaderboardPanel').style.display = 'none';
     }
 
-    // Navigation zu Solo-Modus
+    // Navigation mit window.location.href
     function goToSolo() {
+        console.log("Gehe zu Solo-Modus");
         window.location.href = 'solo.html';
     }
 
-    // Navigation zu PvP-Modus
     function goToPvP() {
+        console.log("Gehe zu PvP-Modus");
         window.location.href = 'pvp.html';
     }
 
-    // Event Listener
-    document.getElementById('soloModeBtn').addEventListener('click', goToSolo);
-    document.getElementById('pvpModeBtn').addEventListener('click', goToPvP);
-    document.getElementById('showLeaderboardBtn').addEventListener('click', showLeaderboard);
-    document.getElementById('closeLeaderboardBtn').addEventListener('click', hideLeaderboard);
-    
-    // Klick außerhalb schließen
-    window.addEventListener('click', (e) => {
-        const panel = document.getElementById('leaderboardPanel');
-        if (e.target === panel) hideLeaderboard();
+    // Event Listener - WICHTIG: Die Elemente müssen existieren
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM geladen");
+        
+        const soloBtn = document.getElementById('soloModeBtn');
+        const pvpBtn = document.getElementById('pvpModeBtn');
+        const leaderboardBtn = document.getElementById('showLeaderboardBtn');
+        const closeBtn = document.getElementById('closeLeaderboardBtn');
+        
+        if (soloBtn) {
+            soloBtn.addEventListener('click', goToSolo);
+            console.log("Solo-Button Listener hinzugefügt");
+        } else {
+            console.error("Solo-Button nicht gefunden");
+        }
+        
+        if (pvpBtn) {
+            pvpBtn.addEventListener('click', goToPvP);
+            console.log("PvP-Button Listener hinzugefügt");
+        } else {
+            console.error("PvP-Button nicht gefunden");
+        }
+        
+        if (leaderboardBtn) {
+            leaderboardBtn.addEventListener('click', showLeaderboard);
+        }
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', hideLeaderboard);
+        }
+        
+        // Klick außerhalb schließen
+        window.addEventListener('click', (e) => {
+            const panel = document.getElementById('leaderboardPanel');
+            if (e.target === panel) hideLeaderboard();
+        });
     });
     
     loadLeaderboard();
