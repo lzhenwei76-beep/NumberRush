@@ -56,6 +56,7 @@
         .wrong-animation { animation: wrongShake 0.25s ease; }
         footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 16px; }
         .test-hint { background: #fff3e0; padding: 12px; border-radius: 24px; margin-top: 16px; font-size: 0.8rem; color: #e67e22; }
+        .room-code { font-family: monospace; font-size: 1.2rem; font-weight: bold; background: #e9ecef; padding: 4px 12px; border-radius: 40px; display: inline-block; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -67,12 +68,26 @@
             <p>Gib deinen Namen ein</p>
             <input type="text" id="playerNameInput" maxlength="20" placeholder="Dein Name" autocomplete="off">
             <div class="modal-buttons">
-                <button id="confirmNameBtn" class="modal-btn modal-btn-primary">🎮 GEGNER SUCHEN</button>
-                <button id="testModeBtn" class="modal-btn modal-btn-test">🤖 TEST-MODUS (gegen Bot)</button>
+                <button id="createRoomBtn" class="modal-btn modal-btn-primary">🏠 RAUM ERSTELLEN</button>
+                <button id="joinRoomBtn" class="modal-btn modal-btn-test">🔗 RAUM BEITRETEN</button>
                 <button id="cancelNameBtn" class="modal-btn modal-btn-secondary">🏠 ZURÜCK</button>
             </div>
-            <div class="test-hint">
-                💡 <strong>Tipp für echten PvP:</strong> Öffne die Seite in zwei verschiedenen Browsern (z.B. Chrome + Firefox) und suche gleichzeitig nach einem Gegner!
+            <div class="test-hint" id="roomHint" style="display: none;">
+                💡 <strong>Raum-Code:</strong> <span id="displayRoomCode" class="room-code">---</span><br>
+                Teile diesen Code mit deinem Freund!
+            </div>
+        </div>
+    </div>
+
+    <!-- Raum-Beitreten Modal -->
+    <div id="joinModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>🔗 RAUM BEITRETEN</h2>
+            <p>Gib den Raum-Code ein</p>
+            <input type="text" id="roomCodeInput" maxlength="20" placeholder="Raum-Code" autocomplete="off">
+            <div class="modal-buttons">
+                <button id="confirmJoinBtn" class="modal-btn modal-btn-primary">BEITRETEN</button>
+                <button id="cancelJoinBtn" class="modal-btn modal-btn-secondary">ZURÜCK</button>
             </div>
         </div>
     </div>
@@ -81,8 +96,8 @@
     <div id="waitingScreen" class="card" style="display: none;">
         <div class="waiting-area">
             <div class="spinner"></div>
-            <div class="waiting-text">🔍 Gegner wird gesucht...</div>
-            <div class="waiting-sub">Warte auf einen anderen Spieler</div>
+            <div class="waiting-text" id="waitingText">🔍 Warte auf Gegner...</div>
+            <div class="waiting-sub" id="waitingSub">Raum-Code: <span id="waitingRoomCode">---</span></div>
             <button id="cancelWaitingBtn" class="btn-action" style="margin-top: 32px;">ABBRECHEN</button>
         </div>
     </div>
@@ -132,9 +147,8 @@
     // Spielparameter
     const START_TIME = 30.0, POINTS = 10, TIME_BONUS = 0.8, PENALTY = 1.8, MAX_TIME = 45.0;
     let score = 0, time = START_TIME, gameActive = false, timerInterval = null, streak = 0, bestStreak = 0, currentQuestion = { text: "", answer: 0 };
-    let playerId = null, matchId = null, opponentId = null, matchStarted = false, gameEnded = false;
-    let isTestMode = false;
-    let testBotInterval = null;
+    let playerId = null, roomId = null, opponentId = null, gameStarted = false, gameEnded = false;
+    let playerName = "";
     
     const ops = ['+', '−', '×'];
     function random(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
@@ -171,38 +185,28 @@
         gameEnded = true;
         gameActive = false;
         if(timerInterval) clearInterval(timerInterval);
-        if(testBotInterval) clearInterval(testBotInterval);
         document.getElementById('answerInput').disabled = true;
         document.getElementById('submitBtn').disabled = true;
         
-        if(isTestMode){
-            if(score > 0){
-                let playerName = prompt(`🎉 GESCHAFFT! ${score} Punkte!\nMöchtest du deinen Score speichern?`, "Spieler");
-                if(playerName && playerName.trim() && db){
-                    db.ref('scores').push({ name: playerName.trim().substring(0,20), score: score, timestamp: Date.now() });
-                    document.getElementById('feedbackMsg').innerHTML = "✅ Score gespeichert!";
-                }
-            }
-            document.getElementById('feedbackMsg').innerHTML = score > 0 ? `🏆 TEST-MODUS BEENDET! ${score} Punkte` : "⏰ TEST-MODUS BEENDET!";
-            return;
-        }
-        
-        if(matchId && playerId && db){
-            await db.ref(`matches/${matchId}/players/${playerId}/finished`).set(true);
-            await db.ref(`matches/${matchId}/players/${playerId}/finalScore`).set(score);
-            const ms = await db.ref(`matches/${matchId}`).once('value');
-            const match = ms.val();
-            if(match && match.players){
-                const pids = Object.keys(match.players);
-                if(pids.length >= 2 && match.players[pids[0]]?.finished && match.players[pids[1]]?.finished){
-                    const p1s = match.players[pids[0]].finalScore || 0;
-                    const p2s = match.players[pids[1]].finalScore || 0;
-                    const myFinal = playerId === pids[0] ? p1s : p2s;
-                    const oppFinal = playerId === pids[0] ? p2s : p1s;
+        if(roomId && playerId && db){
+            await db.ref(`pvp_rooms/${roomId}/players/${playerId}/finished`).set(true);
+            await db.ref(`pvp_rooms/${roomId}/players/${playerId}/finalScore`).set(score);
+            
+            const roomSnap = await db.ref(`pvp_rooms/${roomId}`).once('value');
+            const room = roomSnap.val();
+            if(room && room.players){
+                const players = room.players;
+                const playerIds = Object.keys(players);
+                if(playerIds.length >= 2 && players[playerIds[0]]?.finished && players[playerIds[1]]?.finished){
+                    const p1s = players[playerIds[0]].finalScore || 0;
+                    const p2s = players[playerIds[1]].finalScore || 0;
+                    const isPlayer1 = playerId === playerIds[0];
+                    const myFinal = isPlayer1 ? p1s : p2s;
+                    const oppFinal = isPlayer1 ? p2s : p1s;
                     if(myFinal > oppFinal) document.getElementById('feedbackMsg').innerHTML = "🏆 DU HAST GEWONNEN! 🏆";
                     else if(myFinal < oppFinal) document.getElementById('feedbackMsg').innerHTML = "😔 DU HAST VERLOREN! 😔";
                     else document.getElementById('feedbackMsg').innerHTML = "🤝 UNENTSCHIEDEN! 🤝";
-                    await db.ref(`matches/${matchId}`).remove();
+                    await db.ref(`pvp_rooms/${roomId}`).remove();
                 } else {
                     document.getElementById('feedbackMsg').innerHTML = "⏳ Warte auf Gegner...";
                 }
@@ -221,7 +225,7 @@
         document.getElementById('feedbackMsg').innerHTML = "✓ RICHTIG! +10 Punkte";
         document.getElementById('equationBlock').classList.add('correct-animation');
         setTimeout(() => document.getElementById('equationBlock').classList.remove('correct-animation'), 250);
-        if(matchId && playerId && db && !isTestMode) db.ref(`matches/${matchId}/players/${playerId}/score`).set(score);
+        if(roomId && playerId && db && gameStarted) db.ref(`pvp_rooms/${roomId}/players/${playerId}/score`).set(score);
         currentQuestion = newQuestion();
         updateUI();
         document.getElementById('answerInput').value = '';
@@ -255,84 +259,118 @@
         else wrongAnswer();
     }
     
-    // Test-Modus mit Bot-Gegner
-    function startTestMode(playerName){
-        isTestMode = true;
-        gameEnded = false;
-        document.getElementById('nameModal').style.display = 'none';
-        document.getElementById('waitingScreen').style.display = 'none';
-        document.getElementById('gameScreen').style.display = 'block';
-        document.getElementById('opponentName').innerHTML = "🤖 BOT";
-        document.getElementById('opponentScore').innerHTML = "0";
-        startGame();
+    // Raum erstellen
+    async function createRoom(){
+        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
+        roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
         
-        // Bot-Logik: Der Bot bekommt zufällig alle 1.5-3 Sekunden Punkte
-        testBotInterval = setInterval(() => {
-            if(gameActive && !gameEnded){
-                let botScore = parseInt(document.getElementById('opponentScore').innerHTML) || 0;
-                // Bot bekommt zufällig 5-15 Punkte pro Aktion
-                let botGain = random(5, 15);
-                let newBotScore = botScore + botGain;
-                document.getElementById('opponentScore').innerHTML = newBotScore;
-                // Bot hat auch eine "Serie" - nur zur Anzeige
-                if(botGain > 10){
-                    // Bot macht einen Fehler seltener
+        await db.ref(`pvp_rooms/${roomId}`).set({
+            createdAt: Date.now(),
+            players: {
+                [playerId]: {
+                    name: playerName,
+                    score: 0,
+                    finished: false,
+                    finalScore: 0
                 }
             }
-        }, random(1500, 3000));
-    }
-    
-    async function startMatchmaking(playerName){
-        isTestMode = false;
-        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
-        matchId = Date.now().toString();
-        
-        await db.ref(`matches/${matchId}/players/${playerId}`).set({
-            name: playerName,
-            score: 0,
-            finished: false,
-            finalScore: 0,
-            joinedAt: Date.now()
         });
         
-        const playerRef = db.ref(`matches/${matchId}/players`);
-        playerRef.on('value', async (snapshot) => {
+        document.getElementById('displayRoomCode').innerText = roomId;
+        document.getElementById('roomHint').style.display = 'block';
+        document.getElementById('waitingRoomCode').innerText = roomId;
+        document.getElementById('waitingText').innerText = "🔍 Warte auf Gegner...";
+        document.getElementById('waitingSub').innerHTML = `Raum-Code: <strong>${roomId}</strong><br>Teile diesen Code mit deinem Freund!`;
+        
+        document.getElementById('nameModal').style.display = 'none';
+        document.getElementById('waitingScreen').style.display = 'block';
+        
+        // Auf Gegner warten
+        const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
+        roomRef.on('value', (snapshot) => {
             const players = snapshot.val();
-            if(players && Object.keys(players).length === 2 && !matchStarted){
-                matchStarted = true;
-                document.getElementById('waitingScreen').style.display = 'none';
-                document.getElementById('gameScreen').style.display = 'block';
+            if(players && Object.keys(players).length === 2 && !gameStarted){
+                gameStarted = true;
                 const opponent = Object.keys(players).find(id => id !== playerId);
                 opponentId = opponent;
                 document.getElementById('opponentName').innerHTML = players[opponent].name;
                 
-                db.ref(`matches/${matchId}/players/${opponentId}/score`).on('value', (snap) => {
+                db.ref(`pvp_rooms/${roomId}/players/${opponentId}/score`).on('value', (snap) => {
                     document.getElementById('opponentScore').innerHTML = snap.val() || 0;
                 });
-                db.ref(`matches/${matchId}/players/${opponentId}/finished`).on('value', (snap) => {
+                db.ref(`pvp_rooms/${roomId}/players/${opponentId}/finished`).on('value', (snap) => {
                     if(snap.val() === true && !gameEnded) endGame();
                 });
+                
+                document.getElementById('waitingScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'block';
                 startGame();
             }
         });
         
-        // Timeout nach 30 Sekunden
+        // Raum nach 5 Minuten löschen
         setTimeout(() => {
-            if(!matchStarted){
-                cancelMatchmaking();
-                alert("⏰ Kein Gegner gefunden. Versuche es mit dem TEST-MODUS oder öffne die Seite in einem zweiten Browser!");
-                document.getElementById('waitingScreen').style.display = 'none';
-                document.getElementById('nameModal').style.display = 'flex';
-            }
-        }, 30000);
+            if(!gameStarted) db.ref(`pvp_rooms/${roomId}`).remove();
+        }, 300000);
     }
     
-    async function cancelMatchmaking(){
-        if(matchId && playerId && db){
-            await db.ref(`matches/${matchId}/players/${playerId}`).remove();
-            const remaining = await db.ref(`matches/${matchId}/players`).once('value');
-            if(!remaining.exists()) await db.ref(`matches/${matchId}`).remove();
+    // Raum beitreten
+    async function joinRoom(roomCode){
+        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
+        roomId = roomCode.toUpperCase();
+        
+        const roomRef = db.ref(`pvp_rooms/${roomId}`);
+        const roomSnap = await roomRef.once('value');
+        const room = roomSnap.val();
+        
+        if(!room){
+            alert("Raum nicht gefunden! Überprüfe den Code.");
+            document.getElementById('joinModal').style.display = 'none';
+            document.getElementById('nameModal').style.display = 'flex';
+            return;
         }
+        
+        if(room.players && Object.keys(room.players).length >= 2){
+            alert("Dieser Raum ist bereits voll!");
+            document.getElementById('joinModal').style.display = 'none';
+            document.getElementById('nameModal').style.display = 'flex';
+            return;
+        }
+        
+        await roomRef.child(`players/${playerId}`).set({
+            name: playerName,
+            score: 0,
+            finished: false,
+            finalScore: 0
+        });
+        
+        document.getElementById('nameModal').style.display = 'none';
+        document.getElementById('waitingScreen').style.display = 'block';
+        document.getElementById('waitingText').innerHTML = "🔍 Verbinde mit Raum...";
+        document.getElementById('waitingSub').innerHTML = `Raum-Code: <strong>${roomId}</strong>`;
+        
+        // Auf Spielstart warten
+        const playersRef = db.ref(`pvp_rooms/${roomId}/players`);
+        playersRef.on('value', (snapshot) => {
+            const players = snapshot.val();
+            if(players && Object.keys(players).length === 2 && !gameStarted){
+                gameStarted = true;
+                const opponent = Object.keys(players).find(id => id !== playerId);
+                opponentId = opponent;
+                document.getElementById('opponentName').innerHTML = players[opponent].name;
+                
+                db.ref(`pvp_rooms/${roomId}/players/${opponentId}/score`).on('value', (snap) => {
+                    document.getElementById('opponentScore').innerHTML = snap.val() || 0;
+                });
+                db.ref(`pvp_rooms/${roomId}/players/${opponentId}/finished`).on('value', (snap) => {
+                    if(snap.val() === true && !gameEnded) endGame();
+                });
+                
+                document.getElementById('waitingScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'block';
+                startGame();
+            }
+        });
     }
     
     function startGame(){
@@ -355,26 +393,45 @@
         document.getElementById('answerInput').focus();
     }
     
-    function exitToMenu(){
-        if(timerInterval) clearInterval(timerInterval);
-        if(testBotInterval) clearInterval(testBotInterval);
-        if(matchId && playerId && db && !isTestMode) cancelMatchmaking();
+    async function cancelMatchmaking(){
+        if(roomId && playerId && db){
+            await db.ref(`pvp_rooms/${roomId}/players/${playerId}`).remove();
+            const remaining = await db.ref(`pvp_rooms/${roomId}/players`).once('value');
+            if(!remaining.exists()) await db.ref(`pvp_rooms/${roomId}`).remove();
+        }
         window.location.href = 'index.html';
     }
     
+    function exitToMenu(){
+        if(timerInterval) clearInterval(timerInterval);
+        if(roomId && playerId && db) cancelMatchmaking();
+        else window.location.href = 'index.html';
+    }
+    
     // Event Listener
-    document.getElementById('confirmNameBtn').addEventListener('click', () => {
-        let name = document.getElementById('playerNameInput').value.trim();
-        if(!name){ alert("Bitte Namen eingeben"); return; }
-        document.getElementById('nameModal').style.display = 'none';
-        document.getElementById('waitingScreen').style.display = 'block';
-        startMatchmaking(name);
+    document.getElementById('createRoomBtn').addEventListener('click', () => {
+        playerName = document.getElementById('playerNameInput').value.trim();
+        if(!playerName){ alert("Bitte Namen eingeben"); return; }
+        createRoom();
     });
     
-    document.getElementById('testModeBtn').addEventListener('click', () => {
-        let name = document.getElementById('playerNameInput').value.trim();
-        if(!name){ alert("Bitte Namen eingeben"); return; }
-        startTestMode(name);
+    document.getElementById('joinRoomBtn').addEventListener('click', () => {
+        playerName = document.getElementById('playerNameInput').value.trim();
+        if(!playerName){ alert("Bitte Namen eingeben"); return; }
+        document.getElementById('nameModal').style.display = 'none';
+        document.getElementById('joinModal').style.display = 'flex';
+    });
+    
+    document.getElementById('confirmJoinBtn').addEventListener('click', () => {
+        const roomCode = document.getElementById('roomCodeInput').value.trim();
+        if(!roomCode){ alert("Bitte Raum-Code eingeben"); return; }
+        document.getElementById('joinModal').style.display = 'none';
+        joinRoom(roomCode);
+    });
+    
+    document.getElementById('cancelJoinBtn').addEventListener('click', () => {
+        document.getElementById('joinModal').style.display = 'none';
+        document.getElementById('nameModal').style.display = 'flex';
     });
     
     document.getElementById('cancelNameBtn').addEventListener('click', () => {
@@ -383,7 +440,6 @@
     
     document.getElementById('cancelWaitingBtn').addEventListener('click', () => {
         cancelMatchmaking();
-        window.location.href = 'index.html';
     });
     
     document.getElementById('submitBtn').addEventListener('click', checkAnswer);
@@ -394,17 +450,6 @@
     
     // Modal anzeigen
     document.getElementById('nameModal').style.display = 'flex';
-    
-    // Firebase-Verbindung testen
-    if(db){
-        db.ref('.info/connected').on('value', (snap) => {
-            if(snap.val()){
-                console.log("Firebase verbunden");
-            } else {
-                console.log("Firebase nicht verbunden");
-            }
-        });
-    }
 </script>
 </body>
 </html>
