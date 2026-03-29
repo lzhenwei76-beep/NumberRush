@@ -483,7 +483,7 @@
         submitBtn.disabled = true;
         
         if (score > 0) {
-            const playerName = prompt(`🎉 GESCHAFft! ${score} Punkte!\nGib deinen Namen für die Bestenliste ein:`, "Spieler");
+            const playerName = prompt(`🎉 GESCHAFFT! ${score} Punkte!\nGib deinen Namen für die Bestenliste ein:`, "Spieler");
             if (playerName && playerName.trim() && scoresRef) {
                 scoresRef.push({
                     name: playerName.trim().substring(0, 20),
