@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Number Rush • PvP-Modus</title>
+    <title>Number Rush • Solo-Modus</title>
     <style>
         * {
             margin: 0;
@@ -26,15 +26,622 @@
             width: 100%;
         }
 
-        /* Karten */
-        .card {
+        /* Spielkarte */
+        .game-card {
             background: white;
             border-radius: 48px;
             overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
         }
 
-        /* Header */
+        /* Header mit Punkten und Timer */
+        .stats {
+            background: linear-gradient(135deg, #1e3e4a, #153b46);
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 60px;
+            padding: 8px 24px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #b9dfed;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffdd99;
+            line-height: 1.2;
+        }
+
+        /* Fragebereich */
+        .question-area {
+            padding: 40px 28px 28px;
+            background: white;
+        }
+
+        .equation {
+            background: #f8f9fc;
+            border-radius: 48px;
+            padding: 36px 20px;
+            text-align: center;
+            border: 1px solid #eef2f5;
+        }
+
+        .equation-text {
+            font-size: 3.2rem;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            color: #2c6b7c;
+            letter-spacing: 4px;
+        }
+
+        /* Eingabebereich */
+        .input-area {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .answer-input {
+            flex: 1;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 60px;
+            font-size: 1.8rem;
+            padding: 16px 24px;
+            text-align: center;
+            font-weight: 600;
+            font-family: monospace;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .answer-input:focus {
+            border-color: #f5a623;
+            box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
+        }
+
+        .submit-btn {
+            background: #f5a623;
+            border: none;
+            border-radius: 60px;
+            padding: 16px 32px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #b4621a;
+            transform: translateY(-2px);
+            transition: all 0.05s linear;
+        }
+
+        .submit-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #b4621a;
+        }
+
+        /* Aktionsbuttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            flex: 1;
+            background: #e9ecef;
+            border: none;
+            border-radius: 60px;
+            padding: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a6f7c;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #dee2e6;
+        }
+
+        /* Feedback */
+        .feedback {
+            background: #f8f9fc;
+            border-radius: 40px;
+            padding: 14px 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #5a7e8c;
+            margin-bottom: 16px;
+        }
+
+        /* Streak */
+        .streak-area {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 16px 24px;
+            border-top: 1px solid #eef2f5;
+            background: white;
+        }
+
+        .streak-item {
+            text-align: center;
+        }
+
+        .streak-label {
+            font-size: 0.7rem;
+            color: #8ba0aa;
+            text-transform: uppercase;
+        }
+
+        .streak-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #f5a623;
+        }
+
+        /* Modal (Bereit-Dialog) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 48px;
+            padding: 40px 32px;
+            max-width: 340px;
+            width: 90%;
+            text-align: center;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .modal-content h2 {
+            font-size: 2rem;
+            color: #1a4d5e;
+            margin-bottom: 16px;
+        }
+
+        .modal-content p {
+            color: #6b8f9c;
+            margin-bottom: 24px;
+            font-size: 1rem;
+        }
+
+        .ready-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .ready-btn {
+            flex: 1;
+            background: #f5a623;
+            border: none;
+            border-radius: 60px;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #b4621a;
+            transform: translateY(-2px);
+        }
+
+        .ready-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b4621a;
+        }
+
+        .cancel-btn {
+            background: #e9ecef;
+            color: #2c6b7c;
+            box-shadow: 0 4px 0 #cbd5e0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes correctFlash {
+            0% { background: #f8f9fc; }
+            50% { background: #d4edda; transform: scale(1.01); }
+            100% { background: #f8f9fc; }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); background: #f8f9fc; }
+            25% { transform: translateX(5px); background: #ffe0e0; }
+            75% { transform: translateX(-5px); background: #ffe0e0; }
+        }
+
+        .correct-animation { animation: correctFlash 0.25s ease; }
+        .wrong-animation { animation: wrongShake 0.25s ease; }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="game-card">
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">PUNKTE</div>
+                <div class="stat-value" id="scoreValue">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">ZEIT</div>
+                <div class="stat-value" id="timerValue">30.0</div>
+            </div>
+        </div>
+
+        <div class="question-area">
+            <div class="equation" id="equationBlock">
+                <div class="equation-text" id="questionText">8 + 3 = ?</div>
+            </div>
+
+            <div class="input-area">
+                <input type="number" id="answerInput" class="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
+                <button id="submitBtn" class="submit-btn">✓</button>
+            </div>
+
+            <div class="action-buttons">
+                <button id="resetBtn" class="btn-action">↻ NEUSTART</button>
+                <button id="menuBtn" class="btn-action">🏠 MENÜ</button>
+            </div>
+
+            <div class="feedback" id="feedbackMsg">
+                👆 Tippe die Lösung
+            </div>
+        </div>
+
+        <div class="streak-area">
+            <div class="streak-item">
+                <div class="streak-label">🔥 SERIE</div>
+                <div class="streak-value" id="streakValue">0</div>
+            </div>
+            <div class="streak-item">
+                <div class="streak-label">🏆 BESTE</div>
+                <div class="streak-value" id="bestStreakValue">0</div>
+            </div>
+        </div>
+    </div>
+    <footer>⚡ Richtige Antwort: +10 Punkte +0.8 Sek. | Falsch: −1.8 Sek.</footer>
+</div>
+
+<!-- Bereit-Modal -->
+<div id="readyModal" class="modal">
+    <div class="modal-content">
+        <h2>🎯 BIST DU BEREIT?</h2>
+        <p>30 Sekunden Zeit • Schnell rechnen = mehr Punkte!</p>
+        <div class="ready-buttons">
+            <button id="startGameBtn" class="ready-btn">🔥 START</button>
+            <button id="cancelStartBtn" class="ready-btn cancel-btn">↻ ZURÜCK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Firebase Konfiguration
+    const firebaseConfig = {
+        apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
+        authDomain: "mathnumberrush.firebaseapp.com",
+        databaseURL: "https://mathnumberrush-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mathnumberrush",
+        storageBucket: "mathnumberrush.firebasestorage.app",
+        messagingSenderId: "1072751880887",
+        appId: "1:1072751880887:web:b9ab1a74c6f40a6620bb32",
+        measurementId: "G-3QDHYZHNCY"
+    };
+
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.apps.length ? firebase.database() : null;
+    const scoresRef = db ? db.ref('scores') : null;
+
+    // Spielparameter
+    const START_TIME = 30.0;
+    const POINTS = 10;
+    const TIME_BONUS = 0.8;
+    const PENALTY = 1.8;
+    const MAX_TIME = 45.0;
+
+    // DOM Elemente
+    const scoreValue = document.getElementById('scoreValue');
+    const timerValue = document.getElementById('timerValue');
+    const questionText = document.getElementById('questionText');
+    const answerInput = document.getElementById('answerInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const menuBtn = document.getElementById('menuBtn');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    const streakValue = document.getElementById('streakValue');
+    const bestStreakValue = document.getElementById('bestStreakValue');
+    const equationBlock = document.getElementById('equationBlock');
+
+    // Spielzustand
+    let score = 0;
+    let time = START_TIME;
+    let gameActive = false;
+    let timerInterval = null;
+    let streak = 0;
+    let bestStreak = 0;
+    let currentQuestion = { text: "", answer: 0 };
+    let gameStarted = false;
+
+    const ops = ['+', '−', '×'];
+
+    function random(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getDifficulty() {
+        if (score < 70) return 1;
+        if (score < 180) return 2;
+        if (score < 350) return 3;
+        if (score < 550) return 4;
+        return 5;
+    }
+
+    function newQuestion() {
+        const difficulty = getDifficulty();
+        const op = ops[Math.floor(Math.random() * ops.length)];
+        let a, b, answer;
+        let minV, maxV;
+
+        switch(difficulty) {
+            case 1: minV = 1; maxV = 12; break;
+            case 2: minV = 2; maxV = 18; break;
+            case 3: minV = 4; maxV = 28; break;
+            case 4: minV = 8; maxV = 42; break;
+            default: minV = 12; maxV = 65;
+        }
+
+        if (op === '×') {
+            let limit = difficulty <= 2 ? 12 : 15;
+            a = random(2, limit);
+            b = random(2, limit);
+            answer = a * b;
+        } else if (op === '+') {
+            a = random(minV, maxV);
+            b = random(minV, maxV);
+            answer = a + b;
+        } else {
+            a = random(minV, maxV);
+            b = random(minV, maxV);
+            if (a >= b) {
+                answer = a - b;
+            } else {
+                let temp = a;
+                a = b;
+                b = temp;
+                answer = a - b;
+            }
+        }
+        
+        let sym = op === '×' ? '×' : op;
+        return { text: `${a} ${sym} ${b}`, answer: answer };
+    }
+
+    function updateUI() {
+        questionText.innerText = currentQuestion.text + " = ?";
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!gameActive) return;
+            if (time <= 0.01) {
+                time = 0;
+                timerValue.innerText = "0.0";
+                endGame();
+            } else {
+                time = Math.max(0, time - 0.1);
+                timerValue.innerText = time.toFixed(1);
+            }
+        }, 100);
+    }
+
+    function endGame() {
+        gameActive = false;
+        if (timerInterval) clearInterval(timerInterval);
+        answerInput.disabled = true;
+        submitBtn.disabled = true;
+        
+        if (score > 0) {
+            const playerName = prompt(`🎉 GESCHAFFT! ${score} Punkte!\nGib deinen Namen für die Bestenliste ein:`, "Spieler");
+            if (playerName && playerName.trim() && scoresRef) {
+                scoresRef.push({
+                    name: playerName.trim().substring(0, 20),
+                    score: score,
+                    timestamp: Date.now()
+                }).then(() => {
+                    feedbackMsg.innerHTML = "✅ Score gespeichert!";
+                    feedbackMsg.style.background = "#e8f5e9";
+                }).catch(() => {
+                    feedbackMsg.innerHTML = "❌ Fehler beim Speichern";
+                });
+            } else if (playerName && playerName.trim() && !scoresRef) {
+                feedbackMsg.innerHTML = "⚠️ Datenbank nicht verfügbar";
+            }
+        }
+        feedbackMsg.innerHTML = "⏰ SPIEL BEENDET! Drücke NEUSTART";
+        feedbackMsg.style.background = "#ffebd2";
+    }
+
+    function correctAnswer() {
+        score += POINTS;
+        scoreValue.innerText = score;
+
+        streak++;
+        streakValue.innerText = streak;
+        if (streak > bestStreak) {
+            bestStreak = streak;
+            bestStreakValue.innerText = bestStreak;
+        }
+
+        time = Math.min(time + TIME_BONUS, MAX_TIME);
+        timerValue.innerText = time.toFixed(1);
+
+        feedbackMsg.innerHTML = "✓ RICHTIG! +10 Punkte +⏱️";
+        feedbackMsg.style.background = "#e8f5e9";
+        equationBlock.classList.add('correct-animation');
+        setTimeout(() => equationBlock.classList.remove('correct-animation'), 250);
+
+        currentQuestion = newQuestion();
+        updateUI();
+        answerInput.value = '';
+        answerInput.focus();
+
+        setTimeout(() => {
+            if (gameActive) {
+                feedbackMsg.innerHTML = "⚡ Weiter so!";
+                feedbackMsg.style.background = "#f8f9fc";
+            }
+        }, 800);
+    }
+
+    function wrongAnswer() {
+        streak = 0;
+        streakValue.innerText = streak;
+
+        time = Math.max(0, time - PENALTY);
+        timerValue.innerText = time.toFixed(1);
+
+        if (time <= 0.01) {
+            endGame();
+            return;
+        }
+
+        feedbackMsg.innerHTML = `❌ Lösung: ${currentQuestion.answer}  -${PENALTY}s`;
+        feedbackMsg.style.background = "#ffebee";
+        equationBlock.classList.add('wrong-animation');
+        setTimeout(() => equationBlock.classList.remove('wrong-animation'), 250);
+
+        currentQuestion = newQuestion();
+        updateUI();
+        answerInput.value = '';
+        answerInput.focus();
+
+        setTimeout(() => {
+            if (gameActive) {
+                feedbackMsg.innerHTML = "💪 Nächste Aufgabe!";
+                feedbackMsg.style.background = "#f8f9fc";
+            }
+        }, 1200);
+    }
+
+    function checkAnswer() {
+        if (!gameActive) return;
+        let raw = answerInput.value.trim();
+        if (raw === "") {
+            feedbackMsg.innerHTML = "📝 Zahl eingeben";
+            return;
+        }
+        let num = Number(raw);
+        if (isNaN(num)) {
+            feedbackMsg.innerHTML = "🔢 Nur Zahlen";
+            answerInput.value = '';
+            return;
+        }
+        if (num === currentQuestion.answer) {
+            correctAnswer();
+        } else {
+            wrongAnswer();
+        }
+    }
+
+    function startGame() {
+        gameActive = true;
+        gameStarted = true;
+        score = 0;
+        time = START_TIME;
+        streak = 0;
+        scoreValue.innerText = "0";
+        timerValue.innerText = time.toFixed(1);
+        streakValue.innerText = "0";
+        answerInput.disabled = false;
+        submitBtn.disabled = false;
+        answerInput.value = '';
+        currentQuestion = newQuestion();
+        updateUI();
+        startTimer();
+        feedbackMsg.innerHTML = "🚀 Los geht's! Schnell rechnen!";
+        feedbackMsg.style.background = "#f8f9fc";
+        answerInput.focus();
+    }
+
+    function resetToMenu() {
+        if (timerInterval) clearInterval(timerInterval);
+        window.location.href = 'index.html';
+    }
+
+    function resetGame() {
+        if (timerInterval) clearInterval(timerInterval);
+        startGame();
+    }
+
+    // Event Listener
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+        document.getElementById('readyModal').style.display = 'none';
+        startGame();
+    });
+    
+    document.getElementById('cancelStartBtn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+    
+    submitBtn.addEventListener('click', checkAnswer);
+    resetBtn.addEventListener('click', resetGame);
+    menuBtn.addEventListener('click', resetToMenu);
+    
+    answerInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && gameActive) {
+            checkAnswer();
+        }
+    });
+
+    // Modal anzeigen
+    document.getElementById('readyModal').style.display = 'flex';
+    answerInput.disabled = true;
+    submitBtn.disabled = true;
+</script>
+</body>
+</html>        /* Header */
         .stats {
             background: linear-gradient(135deg, #1e3e4a, #153b46);
             padding: 20px 24px;
