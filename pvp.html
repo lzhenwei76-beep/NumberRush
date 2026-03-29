@@ -17,7 +17,7 @@
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 550px; width: 100%; }
+        .container { max-width: 600px; width: 100%; }
         .card { background: white; border-radius: 40px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         
         /* Header */
@@ -26,16 +26,17 @@
         .stat-label { font-size: 0.7rem; color: #b9dfed; text-transform: uppercase; }
         .stat-value { font-size: 2rem; font-weight: 800; color: #ffdd99; }
         
-        /* Lobby / Spieler-Anzeige */
+        /* Lobby */
         .lobby-container { padding: 32px 24px; background: white; text-align: center; }
-        .players-row { display: flex; justify-content: center; gap: 40px; margin: 32px 0; flex-wrap: wrap; }
+        .players-row { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 32px 0; flex-wrap: wrap; }
         .player-card {
             background: #f8f9fc;
             border-radius: 32px;
-            padding: 24px 32px;
+            padding: 24px 28px;
             text-align: center;
             min-width: 180px;
-            border: 2px solid #eef2f5;
+            border: 3px solid #eef2f5;
+            transition: all 0.2s;
         }
         .player-card.ready { border-color: #4caf50; background: #e8f5e9; }
         .player-avatar { font-size: 3rem; margin-bottom: 8px; }
@@ -43,7 +44,7 @@
         .player-status { font-size: 0.8rem; margin-top: 8px; padding: 4px 12px; border-radius: 30px; display: inline-block; }
         .status-waiting { background: #e9ecef; color: #8ba0aa; }
         .status-ready { background: #4caf50; color: white; }
-        .vs-divider { font-size: 2rem; font-weight: 800; color: #e67e22; display: flex; align-items: center; }
+        .vs-divider { font-size: 2rem; font-weight: 800; color: #e67e22; }
         
         .room-code-box { background: #f8f9fc; border-radius: 60px; padding: 12px 20px; margin: 20px 0; display: inline-block; }
         .room-code { font-family: monospace; font-size: 1.3rem; font-weight: bold; color: #e67e22; }
@@ -63,6 +64,7 @@
         }
         .ready-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b4621a; }
         .ready-btn.disabled { background: #8ba0aa; box-shadow: none; cursor: not-allowed; transform: none; }
+        .ready-btn.ready-clicked { background: #4caf50; box-shadow: 0 4px 0 #2e7d32; }
         
         /* Spielbereich */
         .question-area { padding: 32px 24px; background: white; }
@@ -77,6 +79,8 @@
         .feedback { background: #f8f9fc; border-radius: 40px; padding: 12px; text-align: center; font-size: 0.85rem; margin-bottom: 16px; }
         .streak-area { display: flex; justify-content: center; gap: 40px; padding: 16px 24px; border-top: 1px solid #eef2f5; }
         .streak-value { font-size: 1.3rem; font-weight: 800; color: #f5a623; }
+        .opponent-bar { background: #f8f9fc; padding: 12px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eef2f5; }
+        .vs-badge { background: #e67e22; color: white; padding: 2px 10px; border-radius: 30px; font-size: 0.7rem; margin-right: 10px; }
         
         /* Modal */
         .modal {
@@ -100,6 +104,7 @@
         .wrong-animation { animation: wrongShake 0.25s ease; }
         footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 16px; }
         .hidden { display: none; }
+        .waiting-text { font-size: 1rem; color: #2c6b7c; margin-top: 16px; }
     </style>
 </head>
 <body>
@@ -108,7 +113,7 @@
     <div id="mainMenu" class="modal" style="display: flex;">
         <div class="modal-content">
             <h2>⚔️ PVP-DUELL</h2>
-            <input type="text" id="playerName" maxlength="20" placeholder="Dein Name">
+            <input type="text" id="playerNameInput" maxlength="20" placeholder="Dein Name">
             <button id="createRoomBtn" class="modal-btn btn-primary">🏠 RAUM ERSTELLEN</button>
             <button id="showRoomsBtn" class="modal-btn btn-primary" style="background:#2c6b7c; box-shadow:0 3px 0 #15424f;">📋 RÄUME ANZEIGEN</button>
             <button id="backToMenuBtn" class="modal-btn btn-secondary">🏠 ZURÜCK</button>
@@ -122,6 +127,18 @@
             <div id="roomList" class="room-list"><div style="text-align:center;">Lade...</div></div>
             <button id="refreshRooms" class="modal-btn btn-secondary" style="margin-top:8px;">🔄 AKTUALISIEREN</button>
             <button id="closeRooms" class="modal-btn btn-secondary">ZURÜCK</button>
+        </div>
+    </div>
+
+    <!-- WARTEN (während Gegner beitritt) -->
+    <div id="waitingForPlayer" class="card" style="display: none;">
+        <div class="waiting-area">
+            <div class="spinner"></div>
+            <div class="waiting-text">🔍 Warte auf Gegner...</div>
+            <div class="room-code-box" style="margin-top: 20px;">
+                📌 Raum-Code: <span class="room-code" id="waitingRoomCode">---</span>
+            </div>
+            <button id="cancelWaitingBtn" class="btn-action" style="margin-top: 24px;">ABBRECHEN</button>
         </div>
     </div>
 
@@ -160,8 +177,8 @@
                 <div class="stat"><div class="stat-label">DEINE PUNKTE</div><div class="stat-value" id="myScore">0</div></div>
                 <div class="stat"><div class="stat-label">ZEIT</div><div class="stat-value" id="timerVal">30</div></div>
             </div>
-            <div class="opponent-bar" style="background:#f8f9fc; padding:12px 20px; display:flex; justify-content:space-between; border-bottom:1px solid #eef2f5;">
-                <div><span style="background:#e67e22; color:white; padding:2px 10px; border-radius:30px; font-size:0.7rem; margin-right:10px;">VS</span><span id="opponentNameGame">Gegner</span></div>
+            <div class="opponent-bar">
+                <div><span class="vs-badge">VS</span><span id="opponentNameGame">Gegner</span></div>
                 <div style="font-weight:800; color:#e67e22;" id="opponentScoreGame">0</div>
             </div>
             <div class="question-area">
@@ -196,7 +213,9 @@
     
     // PvP Variablen
     let playerId = null, roomId = null, opponentId = null, playerName = "";
-    let isReady = false, bothReady = false, gameStarted = false, gameEnded = false;
+    let isReady = false;
+    let lobbyListener = null;
+    let gameStarted = false, gameEnded = false;
     
     const ops = ['+', '−', '×'];
     function random(m,n){ return Math.floor(Math.random()*(n-m+1))+m; }
@@ -212,7 +231,7 @@
     }
     function updateUI(){ document.getElementById('questionText').innerHTML = currentQ.text + " = ?"; }
 
-    // Spiel-Logik
+    // Timer
     function startTimer(){
         if(timerInt) clearInterval(timerInt);
         timerInt = setInterval(() => {
@@ -222,6 +241,7 @@
         }, 1000);
     }
     
+    // Spiel beenden
     async function endGame(){
         if(gameEnded) return;
         gameEnded = true; gameActive = false;
@@ -252,6 +272,7 @@
         }
     }
     
+    // Antwort-Logik
     function correctAnswer(){
         score += POINTS;
         document.getElementById('myScore').innerHTML = score;
@@ -291,6 +312,7 @@
     
     // Spiel starten (nachdem beide bereit sind)
     function startPvPGame(opponentName){
+        if(gameStarted) return;
         gameStarted = true;
         gameActive = true;
         score = 0; timeLeft = START_TIME; streak = 0; bestStreak = 0;
@@ -318,69 +340,11 @@
     }
     
     // Lobby mit Ready-System
-    async function createRoom(){
-        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
-        roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        
-        await db.ref(`pvp_rooms/${roomId}`).set({
-            createdAt: Date.now(),
-            creator: playerId,
-            players: {
-                [playerId]: {
-                    name: playerName,
-                    score: 0,
-                    ready: false,
-                    finished: false,
-                    finalScore: 0
-                }
-            }
-        });
-        
-        document.getElementById('lobbyRoomCode').innerHTML = roomId;
-        document.getElementById('displayRoomCode').innerHTML = roomId;
-        document.getElementById('player1Name').innerHTML = playerName;
-        
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('roomsModal').style.display = 'none';
-        document.getElementById('lobbyScreen').style.display = 'block';
-        
-        setupLobbyListeners();
-    }
-    
-    async function joinRoom(roomCode){
-        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
-        roomId = roomCode.toUpperCase();
-        
-        const roomRef = db.ref(`pvp_rooms/${roomId}`);
-        const roomSnap = await roomRef.once('value');
-        const room = roomSnap.val();
-        
-        if(!room){ alert("Raum nicht gefunden!"); return false; }
-        if(room.players && Object.keys(room.players).length >= 2){ alert("Raum ist voll!"); return false; }
-        
-        await roomRef.child(`players/${playerId}`).set({
-            name: playerName,
-            score: 0,
-            ready: false,
-            finished: false,
-            finalScore: 0
-        });
-        
-        document.getElementById('lobbyRoomCode').innerHTML = roomId;
-        document.getElementById('displayRoomCode').innerHTML = roomId;
-        
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('roomsModal').style.display = 'none';
-        document.getElementById('lobbyScreen').style.display = 'block';
-        
-        setupLobbyListeners();
-        return true;
-    }
-    
     function setupLobbyListeners(){
+        if(lobbyListener) lobbyListener.off();
         const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
         
-        roomRef.on('value', (snapshot) => {
+        lobbyListener = roomRef.on('value', (snapshot) => {
             const players = snapshot.val();
             if(!players) return;
             
@@ -388,7 +352,7 @@
             const playerCount = playerIds.length;
             document.getElementById('playerCount').innerHTML = `${playerCount}/2`;
             
-            // Spieler 1 (Ersteller) anzeigen
+            // Spieler 1 anzeigen
             if(playerIds[0]){
                 const p1 = players[playerIds[0]];
                 document.getElementById('player1Name').innerHTML = p1.name;
@@ -414,14 +378,13 @@
                 document.getElementById('player2Card').className = "player-card";
             }
             
-            // Prüfen ob beide bereit sind
+            // Prüfen ob beide bereit sind (nur wenn beide Spieler da sind)
             if(playerCount === 2){
                 const p1Ready = players[playerIds[0]]?.ready || false;
                 const p2Ready = players[playerIds[1]]?.ready || false;
-                bothReady = p1Ready && p2Ready;
                 
-                if(bothReady && !gameStarted){
-                    gameStarted = true;
+                if(p1Ready && p2Ready && !gameStarted){
+                    // Beide bereit -> Spiel starten
                     const opponent = playerIds.find(id => id !== playerId);
                     opponentId = opponent;
                     const opponentName = players[opponent].name;
@@ -433,16 +396,96 @@
         });
     }
     
+    // Raum erstellen
+    async function createRoom(){
+        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
+        roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        
+        await db.ref(`pvp_rooms/${roomId}`).set({
+            createdAt: Date.now(),
+            creator: playerId,
+            players: {
+                [playerId]: {
+                    name: playerName,
+                    score: 0,
+                    ready: false,
+                    finished: false,
+                    finalScore: 0
+                }
+            }
+        });
+        
+        document.getElementById('waitingRoomCode').innerHTML = roomId;
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('roomsModal').style.display = 'none';
+        document.getElementById('waitingForPlayer').style.display = 'block';
+        
+        // Auf zweiten Spieler warten
+        const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
+        const waitListener = roomRef.on('value', async (snapshot) => {
+            const players = snapshot.val();
+            if(players && Object.keys(players).length === 2){
+                // Zweiter Spieler ist beigetreten -> zur Lobby wechseln
+                roomRef.off('value', waitListener);
+                document.getElementById('waitingForPlayer').style.display = 'none';
+                document.getElementById('lobbyScreen').style.display = 'block';
+                document.getElementById('lobbyRoomCode').innerHTML = roomId;
+                document.getElementById('displayRoomCode').innerHTML = roomId;
+                document.getElementById('player1Name').innerHTML = playerName;
+                setupLobbyListeners();
+            }
+        });
+        
+        // Cleanup nach 5 Minuten
+        setTimeout(() => {
+            if(!gameStarted) db.ref(`pvp_rooms/${roomId}`).remove();
+        }, 300000);
+    }
+    
+    // Raum beitreten
+    async function joinRoom(roomCode){
+        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
+        roomId = roomCode.toUpperCase();
+        
+        const roomRef = db.ref(`pvp_rooms/${roomId}`);
+        const roomSnap = await roomRef.once('value');
+        const room = roomSnap.val();
+        
+        if(!room){ alert("Raum nicht gefunden!"); return false; }
+        if(room.players && Object.keys(room.players).length >= 2){ alert("Raum ist voll!"); return false; }
+        
+        await roomRef.child(`players/${playerId}`).set({
+            name: playerName,
+            score: 0,
+            ready: false,
+            finished: false,
+            finalScore: 0
+        });
+        
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('roomsModal').style.display = 'none';
+        document.getElementById('lobbyScreen').style.display = 'block';
+        document.getElementById('lobbyRoomCode').innerHTML = roomId;
+        document.getElementById('displayRoomCode').innerHTML = roomId;
+        document.getElementById('player1Name').innerHTML = room.players[Object.keys(room.players)[0]]?.name || "Spieler 1";
+        document.getElementById('player2Name').innerHTML = playerName;
+        setupLobbyListeners();
+        return true;
+    }
+    
+    // Bereit-Button
     async function setReady(){
         if(isReady) return;
         isReady = true;
         await db.ref(`pvp_rooms/${roomId}/players/${playerId}/ready`).set(true);
-        document.getElementById('readyButton').innerHTML = "✅ BEREIT";
-        document.getElementById('readyButton').classList.add('disabled');
-        document.getElementById('readyButton').disabled = true;
+        const readyBtn = document.getElementById('readyButton');
+        readyBtn.innerHTML = "✅ BEREIT";
+        readyBtn.classList.add('ready-clicked');
+        readyBtn.disabled = true;
     }
     
-    async function cancelLobby(){
+    // Verlassen / Abbruch
+    async function cancelGame(){
         if(roomId && playerId && db){
             await db.ref(`pvp_rooms/${roomId}/players/${playerId}`).remove();
             const remaining = await db.ref(`pvp_rooms/${roomId}/players`).once('value');
@@ -453,8 +496,7 @@
     
     function exitGame(){
         if(timerInt) clearInterval(timerInt);
-        if(roomId && playerId && db && !gameEnded) cancelLobby();
-        else window.location.href = 'index.html';
+        cancelGame();
     }
     
     // Raumliste laden
@@ -472,7 +514,7 @@
                 if(playerCount < 2){
                     html += `<div class="room-item" onclick="joinRoomFromList('${code}')">
                         <div><span class="room-code">📌 ${code}</span><br><small>${playerCount}/2 Spieler</small></div>
-                        <button style="background:#f5a623; border:none; padding:6px 16px; border-radius:30px; color:white;">Beitreten</button>
+                        <button style="background:#f5a623; border:none; padding:6px 16px; border-radius:30px; color:white; cursor:pointer;">Beitreten</button>
                     </div>`;
                 }
             }
@@ -481,7 +523,7 @@
     }
     
     window.joinRoomFromList = async function(code){
-        const name = document.getElementById('playerName').value.trim();
+        const name = document.getElementById('playerNameInput').value.trim();
         if(!name){ alert("Bitte Namen eingeben"); return; }
         playerName = name;
         await joinRoom(code);
@@ -489,13 +531,13 @@
     
     // Event Listener
     document.getElementById('createRoomBtn').onclick = () => {
-        const name = document.getElementById('playerName').value.trim();
+        const name = document.getElementById('playerNameInput').value.trim();
         if(!name){ alert("Bitte Namen eingeben"); return; }
         playerName = name;
         createRoom();
     };
     document.getElementById('showRoomsBtn').onclick = () => {
-        const name = document.getElementById('playerName').value.trim();
+        const name = document.getElementById('playerNameInput').value.trim();
         if(!name){ alert("Bitte Namen eingeben"); return; }
         playerName = name;
         loadRooms();
@@ -509,7 +551,8 @@
     };
     document.getElementById('backToMenuBtn').onclick = () => window.location.href = 'index.html';
     document.getElementById('readyButton').onclick = setReady;
-    document.getElementById('cancelLobbyBtn').onclick = cancelLobby;
+    document.getElementById('cancelLobbyBtn').onclick = cancelGame;
+    document.getElementById('cancelWaitingBtn').onclick = cancelGame;
     document.getElementById('submitBtn').onclick = checkAnswer;
     document.getElementById('exitGameBtn').onclick = exitGame;
     document.getElementById('answerInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && gameActive) checkAnswer(); });
