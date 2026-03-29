@@ -103,8 +103,7 @@
         .correct-animation { animation: correctFlash 0.25s ease; }
         .wrong-animation { animation: wrongShake 0.25s ease; }
         footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 16px; }
-        .hidden { display: none; }
-        .waiting-text { font-size: 1rem; color: #2c6b7c; margin-top: 16px; }
+        .test-hint { background: #fff3e0; padding: 12px; border-radius: 24px; margin-top: 16px; font-size: 0.8rem; color: #e67e22; }
     </style>
 </head>
 <body>
@@ -116,6 +115,7 @@
             <input type="text" id="playerNameInput" maxlength="20" placeholder="Dein Name">
             <button id="createRoomBtn" class="modal-btn btn-primary">🏠 RAUM ERSTELLEN</button>
             <button id="showRoomsBtn" class="modal-btn btn-primary" style="background:#2c6b7c; box-shadow:0 3px 0 #15424f;">📋 RÄUME ANZEIGEN</button>
+            <button id="testModeBtn" class="modal-btn btn-primary" style="background:#e67e22; box-shadow:0 3px 0 #b45f1b;">🤖 TEST-MODUS (GEGEN BOT)</button>
             <button id="backToMenuBtn" class="modal-btn btn-secondary">🏠 ZURÜCK</button>
         </div>
     </div>
@@ -214,8 +214,9 @@
     // PvP Variablen
     let playerId = null, roomId = null, opponentId = null, playerName = "";
     let isReady = false;
-    let lobbyListener = null;
     let gameStarted = false, gameEnded = false;
+    let isTestMode = false;
+    let botInterval = null;
     
     const ops = ['+', '−', '×'];
     function random(m,n){ return Math.floor(Math.random()*(n-m+1))+m; }
@@ -231,7 +232,6 @@
     }
     function updateUI(){ document.getElementById('questionText').innerHTML = currentQ.text + " = ?"; }
 
-    // Timer
     function startTimer(){
         if(timerInt) clearInterval(timerInt);
         timerInt = setInterval(() => {
@@ -241,13 +241,22 @@
         }, 1000);
     }
     
-    // Spiel beenden
     async function endGame(){
         if(gameEnded) return;
         gameEnded = true; gameActive = false;
         if(timerInt) clearInterval(timerInt);
+        if(botInterval) clearInterval(botInterval);
         document.getElementById('answerInput').disabled = true;
         document.getElementById('submitBtn').disabled = true;
+        
+        if(isTestMode){
+            if(score > 0){
+                let name = prompt(`🎉 ${score} Punkte! Dein Name für die Bestenliste:`, playerName);
+                if(name?.trim()) db.ref('scores').push({ name: name.trim().substring(0,20), score: score, timestamp: Date.now() });
+            }
+            document.getElementById('feedbackMsg').innerHTML = score > 0 ? `🏆 TEST-MODUS BEENDET! ${score} Punkte` : "⏰ TEST-MODUS BEENDET!";
+            return;
+        }
         
         if(roomId && playerId && db){
             await db.ref(`pvp_rooms/${roomId}/players/${playerId}/finished`).set(true);
@@ -272,7 +281,6 @@
         }
     }
     
-    // Antwort-Logik
     function correctAnswer(){
         score += POINTS;
         document.getElementById('myScore').innerHTML = score;
@@ -282,7 +290,7 @@
         document.getElementById('feedbackMsg').innerHTML = "✓ RICHTIG! +10";
         document.getElementById('eqBlock').classList.add('correct-animation');
         setTimeout(() => document.getElementById('eqBlock').classList.remove('correct-animation'), 250);
-        if(roomId && playerId && db && gameStarted) db.ref(`pvp_rooms/${roomId}/players/${playerId}/score`).set(score);
+        if(roomId && playerId && db && gameStarted && !isTestMode) db.ref(`pvp_rooms/${roomId}/players/${playerId}/score`).set(score);
         currentQ = newQ(); updateUI();
         document.getElementById('answerInput').value = '';
         document.getElementById('answerInput').focus();
@@ -310,9 +318,7 @@
         if(num === currentQ.answer) correctAnswer(); else wrongAnswer();
     }
     
-    // Spiel starten (nachdem beide bereit sind)
-    function startPvPGame(opponentName){
-        if(gameStarted) return;
+    function startGameLogic(opponentName){
         gameStarted = true;
         gameActive = true;
         score = 0; timeLeft = START_TIME; streak = 0; bestStreak = 0;
@@ -330,21 +336,43 @@
         document.getElementById('feedbackMsg').innerHTML = "⚔️ KAMPF BEGINNT! 30 Sekunden!";
         document.getElementById('answerInput').focus();
         
-        // Gegner Score live verfolgen
-        db.ref(`pvp_rooms/${roomId}/players/${opponentId}/score`).on('value', (snap) => {
-            document.getElementById('opponentScoreGame').innerHTML = snap.val() || 0;
-        });
-        db.ref(`pvp_rooms/${roomId}/players/${opponentId}/finished`).on('value', (snap) => {
-            if(snap.val() === true && !gameEnded) endGame();
-        });
+        if(!isTestMode && opponentId){
+            db.ref(`pvp_rooms/${roomId}/players/${opponentId}/score`).on('value', (snap) => {
+                document.getElementById('opponentScoreGame').innerHTML = snap.val() || 0;
+            });
+            db.ref(`pvp_rooms/${roomId}/players/${opponentId}/finished`).on('value', (snap) => {
+                if(snap.val() === true && !gameEnded) endGame();
+            });
+        }
+    }
+    
+    // Test-Modus mit Bot
+    function startTestMode(){
+        isTestMode = true;
+        playerName = document.getElementById('playerNameInput').value.trim();
+        if(!playerName){ alert("Bitte Namen eingeben"); return; }
+        
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        document.getElementById('opponentNameGame').innerHTML = "🤖 BOT";
+        
+        startGameLogic("🤖 BOT");
+        
+        // Bot: alle 1.5-3 Sekunden zufällige Punkte
+        botInterval = setInterval(() => {
+            if(gameActive && !gameEnded){
+                let botScore = parseInt(document.getElementById('opponentScoreGame').innerHTML) || 0;
+                let botGain = random(5, 15);
+                document.getElementById('opponentScoreGame').innerHTML = botScore + botGain;
+            }
+        }, random(1500, 3000));
     }
     
     // Lobby mit Ready-System
     function setupLobbyListeners(){
-        if(lobbyListener) lobbyListener.off();
         const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
         
-        lobbyListener = roomRef.on('value', (snapshot) => {
+        roomRef.on('value', (snapshot) => {
             const players = snapshot.val();
             if(!players) return;
             
@@ -352,7 +380,7 @@
             const playerCount = playerIds.length;
             document.getElementById('playerCount').innerHTML = `${playerCount}/2`;
             
-            // Spieler 1 anzeigen
+            // Spieler 1
             if(playerIds[0]){
                 const p1 = players[playerIds[0]];
                 document.getElementById('player1Name').innerHTML = p1.name;
@@ -362,11 +390,10 @@
                 document.getElementById('player1Card').className = p1Ready ? "player-card ready" : "player-card";
             }
             
-            // Spieler 2 anzeigen
+            // Spieler 2
             if(playerIds[1]){
                 const p2 = players[playerIds[1]];
                 document.getElementById('player2Name').innerHTML = p2.name;
-                document.getElementById('player2Avatar').innerHTML = "👤";
                 const p2Ready = p2.ready || false;
                 document.getElementById('player2Status').innerHTML = p2Ready ? "✅ bereit" : "⏳ wartet";
                 document.getElementById('player2Status').className = p2Ready ? "player-status status-ready" : "player-status status-waiting";
@@ -378,19 +405,18 @@
                 document.getElementById('player2Card').className = "player-card";
             }
             
-            // Prüfen ob beide bereit sind (nur wenn beide Spieler da sind)
+            // Prüfen ob beide bereit sind
             if(playerCount === 2){
                 const p1Ready = players[playerIds[0]]?.ready || false;
                 const p2Ready = players[playerIds[1]]?.ready || false;
                 
                 if(p1Ready && p2Ready && !gameStarted){
-                    // Beide bereit -> Spiel starten
                     const opponent = playerIds.find(id => id !== playerId);
                     opponentId = opponent;
                     const opponentName = players[opponent].name;
                     document.getElementById('lobbyScreen').style.display = 'none';
                     document.getElementById('gameScreen').style.display = 'block';
-                    startPvPGame(opponentName);
+                    startGameLogic(opponentName);
                 }
             }
         });
@@ -422,10 +448,9 @@
         
         // Auf zweiten Spieler warten
         const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
-        const waitListener = roomRef.on('value', async (snapshot) => {
+        const waitListener = roomRef.on('value', (snapshot) => {
             const players = snapshot.val();
             if(players && Object.keys(players).length === 2){
-                // Zweiter Spieler ist beigetreten -> zur Lobby wechseln
                 roomRef.off('value', waitListener);
                 document.getElementById('waitingForPlayer').style.display = 'none';
                 document.getElementById('lobbyScreen').style.display = 'block';
@@ -436,7 +461,6 @@
             }
         });
         
-        // Cleanup nach 5 Minuten
         setTimeout(() => {
             if(!gameStarted) db.ref(`pvp_rooms/${roomId}`).remove();
         }, 300000);
@@ -467,8 +491,13 @@
         document.getElementById('lobbyScreen').style.display = 'block';
         document.getElementById('lobbyRoomCode').innerHTML = roomId;
         document.getElementById('displayRoomCode').innerHTML = roomId;
-        document.getElementById('player1Name').innerHTML = room.players[Object.keys(room.players)[0]]?.name || "Spieler 1";
+        
+        // Spieler 1 Name aus dem Raum holen
+        const players = room.players;
+        const player1Id = Object.keys(players)[0];
+        document.getElementById('player1Name').innerHTML = players[player1Id]?.name || "Spieler 1";
         document.getElementById('player2Name').innerHTML = playerName;
+        
         setupLobbyListeners();
         return true;
     }
@@ -484,9 +513,9 @@
         readyBtn.disabled = true;
     }
     
-    // Verlassen / Abbruch
+    // Verlassen
     async function cancelGame(){
-        if(roomId && playerId && db){
+        if(roomId && playerId && db && !isTestMode){
             await db.ref(`pvp_rooms/${roomId}/players/${playerId}`).remove();
             const remaining = await db.ref(`pvp_rooms/${roomId}/players`).once('value');
             if(!remaining.exists()) await db.ref(`pvp_rooms/${roomId}`).remove();
@@ -496,6 +525,7 @@
     
     function exitGame(){
         if(timerInt) clearInterval(timerInt);
+        if(botInterval) clearInterval(botInterval);
         cancelGame();
     }
     
@@ -544,6 +574,7 @@
         document.getElementById('mainMenu').style.display = 'none';
         document.getElementById('roomsModal').style.display = 'flex';
     };
+    document.getElementById('testModeBtn').onclick = () => startTestMode();
     document.getElementById('refreshRooms').onclick = loadRooms;
     document.getElementById('closeRooms').onclick = () => {
         document.getElementById('roomsModal').style.display = 'none';
