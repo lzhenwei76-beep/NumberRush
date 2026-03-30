@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Number Rush • PvP-Modus</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <title>Number Rush • Solo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -17,130 +15,12 @@
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 600px; width: 100%; }
+        .container { max-width: 550px; width: 100%; }
         .card { background: white; border-radius: 40px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        
         .header { background: #1e3e4a; padding: 20px 24px; display: flex; justify-content: space-between; }
         .stat { background: rgba(0,0,0,0.3); border-radius: 40px; padding: 6px 20px; text-align: center; }
         .stat-label { font-size: 0.7rem; color: #b9dfed; text-transform: uppercase; }
         .stat-value { font-size: 2rem; font-weight: 800; color: #ffdd99; }
-        
-        .lobby-container { padding: 32px 24px; background: white; text-align: center; }
-        .players-row { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 32px 0; flex-wrap: wrap; }
-        .player-card {
-            background: #f8f9fc;
-            border-radius: 32px;
-            padding: 24px 28px;
-            text-align: center;
-            min-width: 180px;
-            border: 3px solid #eef2f5;
-            transition: all 0.2s;
-        }
-        .player-card.ready { border-color: #4caf50; background: #e8f5e9; }
-        .player-avatar { font-size: 3rem; margin-bottom: 8px; }
-        .player-name { font-size: 1.2rem; font-weight: 700; color: #2c6b7c; }
-        .player-status { font-size: 0.8rem; margin-top: 8px; padding: 4px 12px; border-radius: 30px; display: inline-block; }
-        .status-waiting { background: #e9ecef; color: #8ba0aa; }
-        .status-ready { background: #4caf50; color: white; }
-        .vs-divider { font-size: 2rem; font-weight: 800; color: #e67e22; }
-        
-        .room-code-box { background: #f8f9fc; border-radius: 60px; padding: 12px 20px; margin: 20px 0; display: inline-block; }
-        .room-code { font-family: monospace; font-size: 1.3rem; font-weight: bold; color: #e67e22; }
-        
-        .ready-btn {
-            background: #f5a623;
-            border: none;
-            border-radius: 60px;
-            padding: 16px 48px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #b4621a;
-            margin-top: 20px;
-            transition: 0.05s linear;
-        }
-        .ready-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b4621a; }
-        .ready-btn.disabled { background: #8ba0aa; box-shadow: none; cursor: not-allowed; transform: none; }
-        .ready-btn.ready-clicked { background: #4caf50; box-shadow: 0 4px 0 #2e7d32; }
-        
-        /* Countdown Overlay */
-        .countdown-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            flex-direction: column;
-        }
-        .countdown-number {
-            font-size: 8rem;
-            font-weight: 800;
-            color: #f5a623;
-            text-shadow: 0 0 20px rgba(245,166,35,0.5);
-            animation: pulse 0.5s ease;
-        }
-        .countdown-text {
-            font-size: 2rem;
-            color: white;
-            margin-top: 20px;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        /* Ergebnis Popup */
-        .result-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-        .result-card {
-            background: white;
-            border-radius: 60px;
-            padding: 40px;
-            text-align: center;
-            max-width: 350px;
-            width: 90%;
-            animation: slideIn 0.3s ease;
-        }
-        .result-card.win { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
-        .result-card.lose { background: linear-gradient(135deg, #ffebee, #ffcdd2); }
-        .result-card.draw { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
-        .result-icon { font-size: 4rem; margin-bottom: 16px; }
-        .result-title { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
-        .result-score { font-size: 1.2rem; color: #2c6b7c; margin: 16px 0; }
-        .result-btn {
-            background: #f5a623;
-            border: none;
-            border-radius: 60px;
-            padding: 12px 32px;
-            font-size: 1rem;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            margin-top: 16px;
-            box-shadow: 0 3px 0 #b4621a;
-        }
-        .result-btn:active { transform: translateY(2px); }
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
         .question-area { padding: 32px 24px; background: white; }
         .equation { background: #f8f9fc; border-radius: 40px; padding: 32px 20px; text-align: center; border: 1px solid #eef2f5; }
         .equation-text { font-size: 2.8rem; font-weight: 800; font-family: monospace; color: #2c6b7c; }
@@ -149,125 +29,135 @@
         .answer-input:focus { border-color: #f5a623; }
         .submit-btn { background: #f5a623; border: none; border-radius: 60px; padding: 14px 28px; font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 4px 0 #b4621a; }
         .submit-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b4621a; }
-        .btn-action { background: #e9ecef; border: none; border-radius: 60px; padding: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 12px; width: 100%; }
+        .action-buttons { display: flex; gap: 12px; margin-bottom: 20px; }
+        .btn-action { flex: 1; background: #e9ecef; border: none; border-radius: 60px; padding: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
         .feedback { background: #f8f9fc; border-radius: 40px; padding: 12px; text-align: center; font-size: 0.85rem; margin-bottom: 16px; }
         .streak-area { display: flex; justify-content: center; gap: 40px; padding: 16px 24px; border-top: 1px solid #eef2f5; }
         .streak-value { font-size: 1.3rem; font-weight: 800; color: #f5a623; }
-        .opponent-bar { background: #f8f9fc; padding: 12px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eef2f5; }
-        .vs-badge { background: #e67e22; color: white; padding: 2px 10px; border-radius: 30px; font-size: 0.7rem; margin-right: 10px; }
-        
         .modal {
             display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;
         }
-        .modal-content { background: white; border-radius: 40px; padding: 32px; max-width: 350px; width: 90%; text-align: center; }
-        .modal-content h2 { font-size: 1.5rem; color: #1a4d5e; margin-bottom: 16px; }
-        .modal-content input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 60px; text-align: center; margin: 16px 0; font-size: 1rem; }
-        .modal-btn { padding: 12px; border-radius: 60px; font-size: 1rem; font-weight: 600; border: none; cursor: pointer; margin: 6px 0; width: 100%; }
-        .btn-primary { background: #f5a623; color: white; box-shadow: 0 3px 0 #b4621a; }
-        .btn-secondary { background: #e9ecef; color: #2c6b7c; }
-        .room-list { max-height: 250px; overflow-y: auto; margin: 12px 0; }
-        .room-item { background: #f8f9fc; padding: 10px; border-radius: 30px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .waiting-area { padding: 50px 20px; text-align: center; }
-        .spinner { width: 40px; height: 40px; border: 3px solid #eef2f5; border-top-color: #f5a623; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .modal-content { background: white; border-radius: 40px; padding: 32px; max-width: 300px; width: 90%; text-align: center; }
+        .modal-content h2 { font-size: 1.6rem; color: #1a4d5e; margin-bottom: 16px; }
+        .ready-btn { background: #f5a623; border: none; border-radius: 60px; padding: 12px 24px; font-size: 1rem; font-weight: 700; cursor: pointer; margin: 8px; }
+        .cancel-btn { background: #e9ecef; color: #2c6b7c; }
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .lang-btn {
+            background: #e9ecef;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .lang-btn.active {
+            background: #f5a623;
+            color: white;
+        }
         @keyframes correctFlash { 50% { background: #d4edda; } }
         @keyframes wrongShake { 25%,75% { transform: translateX(4px); background: #ffe0e0; } }
         .correct-animation { animation: correctFlash 0.25s ease; }
         .wrong-animation { animation: wrongShake 0.25s ease; }
         footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 16px; }
-        .cleanup-notice { font-size: 0.7rem; color: #8ba0aa; margin-top: 8px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Hauptmenü -->
-    <div id="mainMenu" class="modal" style="display: flex;">
-        <div class="modal-content">
-            <h2>⚔️ PVP-DUELL</h2>
-            <input type="text" id="playerNameInput" maxlength="20" placeholder="Dein Name">
-            <button id="createRoomBtn" class="modal-btn btn-primary">🏠 RAUM ERSTELLEN</button>
-            <button id="showRoomsBtn" class="modal-btn btn-primary" style="background:#2c6b7c; box-shadow:0 3px 0 #15424f;">📋 RÄUME ANZEIGEN</button>
-            <button id="testModeBtn" class="modal-btn btn-primary" style="background:#e67e22; box-shadow:0 3px 0 #b45f1b;">🤖 TEST-MODUS (GEGEN BOT)</button>
-            <button id="backToMenuBtn" class="modal-btn btn-secondary">🏠 ZURÜCK</button>
-        </div>
-    </div>
-
-    <!-- Raumliste -->
-    <div id="roomsModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h2>📋 VERFÜGBARE RÄUME</h2>
-            <div id="roomList" class="room-list"><div style="text-align:center;">Lade...</div></div>
-            <button id="refreshRooms" class="modal-btn btn-secondary" style="margin-top:8px;">🔄 AKTUALISIEREN</button>
-            <button id="closeRooms" class="modal-btn btn-secondary">ZURÜCK</button>
-            <div class="cleanup-notice">⚠️ Inaktive Räume werden automatisch gelöscht</div>
-        </div>
-    </div>
-
-    <!-- WARTEN -->
-    <div id="waitingForPlayer" class="card" style="display: none;">
-        <div class="waiting-area">
-            <div class="spinner"></div>
-            <div class="waiting-text">🔍 Warte auf Gegner...</div>
-            <div class="room-code-box" style="margin-top: 20px;">
-                📌 Raum-Code: <span class="room-code" id="waitingRoomCode">---</span>
-            </div>
-            <button id="cancelWaitingBtn" class="btn-action" style="margin-top: 24px;">ABBRECHEN</button>
-        </div>
-    </div>
-
-    <!-- LOBBY -->
-    <div id="lobbyScreen" class="card" style="display: none;">
+    <div class="card">
         <div class="header">
-            <div class="stat"><div class="stat-label">RAUM</div><div class="stat-value" id="lobbyRoomCode">---</div></div>
-            <div class="stat"><div class="stat-label">SPIELER</div><div class="stat-value" id="playerCount">1/2</div></div>
+            <div class="stat"><div class="stat-label" id="scoreLabel">PUNKTE</div><div class="stat-value" id="scoreVal">0</div></div>
+            <div class="stat"><div class="stat-label" id="timeLabel">ZEIT</div><div class="stat-value" id="timerVal">30</div></div>
         </div>
-        <div class="lobby-container">
-            <div class="players-row">
-                <div class="player-card" id="player1Card">
-                    <div class="player-avatar">👤</div>
-                    <div class="player-name" id="player1Name">Du</div>
-                    <div class="player-status status-waiting" id="player1Status">wartet</div>
-                </div>
-                <div class="vs-divider">VS</div>
-                <div class="player-card" id="player2Card">
-                    <div class="player-avatar">❓</div>
-                    <div class="player-name" id="player2Name">Wird geladen...</div>
-                    <div class="player-status status-waiting" id="player2Status">wartet</div>
-                </div>
-            </div>
-            <div class="room-code-box">
-                📌 Raum-Code: <span class="room-code" id="displayRoomCode">---</span>
-            </div>
-            <button id="readyButton" class="ready-btn">✅ BEREIT</button>
-            <button id="cancelLobbyBtn" class="btn-action" style="margin-top: 20px;">🏠 VERLASSEN</button>
+        <div class="question-area">
+            <div class="equation" id="eqBlock"><div class="equation-text" id="questionText">8 + 3 = ?</div></div>
+            <div class="input-area"><input type="number" id="answerInput" class="answer-input" placeholder="?" inputmode="numeric"><button id="submitBtn" class="submit-btn">✓</button></div>
+            <div class="action-buttons"><button id="resetBtn" class="btn-action" id="resetBtnText">↻ NEU</button><button id="menuBtn" class="btn-action" id="menuBtnText">🏠 MENÜ</button></div>
+            <div class="feedback" id="feedbackMsg">👆 Tippe die Lösung</div>
         </div>
+        <div class="streak-area"><div>🔥 <span id="streakLabel">SERIE</span> <span id="streakVal" class="streak-value">0</span></div><div>🏆 <span id="bestLabel">BESTE</span> <span id="bestStreakVal" class="streak-value">0</span></div></div>
     </div>
-
-    <!-- Spiel -->
-    <div id="gameScreen" style="display: none;">
-        <div class="card">
-            <div class="header">
-                <div class="stat"><div class="stat-label">DEINE PUNKTE</div><div class="stat-value" id="myScore">0</div></div>
-                <div class="stat"><div class="stat-label">ZEIT</div><div class="stat-value" id="timerVal">30</div></div>
-            </div>
-            <div class="opponent-bar">
-                <div><span class="vs-badge">VS</span><span id="opponentNameGame">Gegner</span></div>
-                <div style="font-weight:800; color:#e67e22;" id="opponentScoreGame">0</div>
-            </div>
-            <div class="question-area">
-                <div class="equation" id="eqBlock"><div class="equation-text" id="questionText">8 + 3 = ?</div></div>
-                <div class="input-area"><input type="number" id="answerInput" class="answer-input" placeholder="?" inputmode="numeric"><button id="submitBtn" class="submit-btn">✓</button></div>
-                <div class="feedback" id="feedbackMsg">👆 Tippe die Lösung</div>
-            </div>
-            <div class="streak-area"><div>🔥 SERIE <span id="streakVal" class="streak-value">0</span></div><div>🏆 BESTE <span id="bestStreakVal" class="streak-value">0</span></div></div>
-        </div>
-        <button id="exitGameBtn" class="btn-action" style="margin-top:12px;">🏠 MENÜ</button>
+    <div class="language-selector">
+        <button class="lang-btn" data-lang="de">🇩🇪 Deutsch</button>
+        <button class="lang-btn" data-lang="en">🇬🇧 English</button>
+        <button class="lang-btn" data-lang="tr">🇹🇷 Türkçe</button>
     </div>
-    <footer>⚡ 30 Sekunden • 10 Punkte pro richtige Antwort</footer>
+    <footer id="footer">⚡ 30 Sekunden • 10 Punkte pro richtige Antwort • Kein Zeitbonus</footer>
 </div>
 
+<div id="readyModal" class="modal">
+    <div class="modal-content">
+        <h2 id="readyTitle">🎯 BIST DU BEREIT?</h2>
+        <p id="readyText">30 Sekunden Zeit</p>
+        <button id="startBtn" class="ready-btn" id="startBtnText">START</button>
+        <button id="cancelBtn" class="ready-btn cancel-btn" id="cancelBtnText">ZURÜCK</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
+    // ========== SPRACHEN ==========
+    const translations = {
+        de: {
+            score: "PUNKTE", time: "ZEIT", streak: "SERIE", best: "BESTE",
+            ready_title: "🎯 BIST DU BEREIT?", ready_text: "30 Sekunden Zeit",
+            start: "START", back: "ZURÜCK", reset: "↻ NEU", menu: "🏠 MENÜ",
+            feedback_start: "👆 Tippe die Lösung", footer: "⚡ 30 Sekunden • 10 Punkte pro richtige Antwort • Kein Zeitbonus",
+            correct: "✓ RICHTIG! +10", next: "⚡ Weiter!", wrong: "💪 Nächste!", game_over: "⏰ SPIEL BEENDET!"
+        },
+        en: {
+            score: "SCORE", time: "TIME", streak: "STREAK", best: "BEST",
+            ready_title: "🎯 ARE YOU READY?", ready_text: "30 seconds time",
+            start: "START", back: "BACK", reset: "↻ NEW", menu: "🏠 MENU",
+            feedback_start: "👆 Type the answer", footer: "⚡ 30 seconds • 10 points per correct answer • No time bonus",
+            correct: "✓ CORRECT! +10", next: "⚡ Keep going!", wrong: "💪 Next one!", game_over: "⏰ GAME OVER!"
+        },
+        tr: {
+            score: "PUAN", time: "ZAMAN", streak: "SERİ", best: "EN İYİ",
+            ready_title: "🎯 HAZIR MISIN?", ready_text: "30 saniye süre",
+            start: "BAŞLA", back: "GERİ", reset: "↻ YENİ", menu: "🏠 MENÜ",
+            feedback_start: "👆 Cevabı yaz", footer: "⚡ 30 saniye • Doğru cevap 10 puan • Zaman bonusu yok",
+            correct: "✓ DOĞRU! +10", next: "⚡ Devam et!", wrong: "💪 Sıradaki!", game_over: "⏰ OYUN BİTTİ!"
+        }
+    };
+    
+    let currentLang = 'de';
+    function updateLanguage() {
+        const t = translations[currentLang];
+        document.getElementById('scoreLabel').innerText = t.score;
+        document.getElementById('timeLabel').innerText = t.time;
+        document.getElementById('streakLabel').innerText = t.streak;
+        document.getElementById('bestLabel').innerText = t.best;
+        document.getElementById('readyTitle').innerText = t.ready_title;
+        document.getElementById('readyText').innerText = t.ready_text;
+        document.getElementById('startBtn').innerText = t.start;
+        document.getElementById('cancelBtn').innerText = t.back;
+        document.getElementById('resetBtn').innerText = t.reset;
+        document.getElementById('menuBtn').innerText = t.menu;
+        document.getElementById('footer').innerText = t.footer;
+        if(!gameActive) document.getElementById('feedbackMsg').innerHTML = t.feedback_start;
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            if(btn.dataset.lang === currentLang) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+    
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentLang = btn.dataset.lang;
+            updateLanguage();
+        });
+    });
+    
+    // Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
         authDomain: "mathnumberrush.firebaseapp.com",
@@ -279,22 +169,10 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    const INACTIVE_TIMEOUT = 30000;
-    let heartbeatInterval = null;
-    let roomCleanupTimeout = null;
-
+    
     const START_TIME = 30, POINTS = 10;
     let score = 0, timeLeft = START_TIME, gameActive = false, timerInt = null, streak = 0, bestStreak = 0;
     let currentQ = { text: "", answer: 0 };
-    
-    let playerId = null, roomId = null, opponentId = null, playerName = "";
-    let isReady = false;
-    let gameStarted = false, gameEnded = false;
-    let isTestMode = false;
-    let botInterval = null;
-    let countdownInterval = null;
-
     const ops = ['+', '−', '×'];
     function random(m,n){ return Math.floor(Math.random()*(n-m+1))+m; }
     function getDifficulty(){ if(score<70)return 1; if(score<180)return 2; if(score<350)return 3; if(score<550)return 4; return 5; }
@@ -308,73 +186,6 @@
         return { text:`${a} ${sym} ${b}`, answer:ans };
     }
     function updateUI(){ document.getElementById('questionText').innerHTML = currentQ.text + " = ?"; }
-
-    // Countdown anzeigen
-    function showCountdown(callback) {
-        const overlay = document.createElement('div');
-        overlay.className = 'countdown-overlay';
-        overlay.innerHTML = `
-            <div class="countdown-number" id="countdownNumber">3</div>
-            <div class="countdown-text">Bereit?</div>
-        `;
-        document.body.appendChild(overlay);
-        
-        let count = 3;
-        const countdownElement = document.getElementById('countdownNumber');
-        
-        countdownInterval = setInterval(() => {
-            count--;
-            if(count >= 1) {
-                countdownElement.innerHTML = count;
-                countdownElement.style.animation = 'none';
-                setTimeout(() => countdownElement.style.animation = 'pulse 0.5s ease', 10);
-            } else if(count === 0) {
-                countdownElement.innerHTML = "START!";
-                countdownElement.style.fontSize = "5rem";
-            } else {
-                clearInterval(countdownInterval);
-                overlay.remove();
-                if(callback) callback();
-            }
-        }, 1000);
-    }
-
-    // Ergebnis-Popup
-    function showResult(isWin, isDraw, myScore, opponentScore) {
-        const overlay = document.createElement('div');
-        overlay.className = 'result-overlay';
-        
-        let icon, title, resultClass;
-        if(isDraw) {
-            icon = "🤝";
-            title = "UNENTSCHIEDEN!";
-            resultClass = "draw";
-        } else if(isWin) {
-            icon = "🏆";
-            title = "DU HAST GEWONNEN!";
-            resultClass = "win";
-        } else {
-            icon = "😔";
-            title = "DU HAST VERLOREN!";
-            resultClass = "lose";
-        }
-        
-        overlay.innerHTML = `
-            <div class="result-card ${resultClass}">
-                <div class="result-icon">${icon}</div>
-                <div class="result-title">${title}</div>
-                <div class="result-score">${myScore} : ${opponentScore}</div>
-                <button class="result-btn" id="resultCloseBtn">ZURÜCK ZUM MENÜ</button>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-        
-        document.getElementById('resultCloseBtn').onclick = () => {
-            overlay.remove();
-            window.location.href = 'index.html';
-        };
-    }
-
     function startTimer(){
         if(timerInt) clearInterval(timerInt);
         timerInt = setInterval(() => {
@@ -383,419 +194,64 @@
             else{ timeLeft--; document.getElementById('timerVal').innerHTML=timeLeft; }
         }, 1000);
     }
-    
-    async function endGame(){
-        if(gameEnded) return;
-        gameEnded = true; gameActive = false;
-        if(timerInt) clearInterval(timerInt);
-        if(botInterval) clearInterval(botInterval);
-        if(countdownInterval) clearInterval(countdownInterval);
-        stopHeartbeat();
-        if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
-        document.getElementById('answerInput').disabled = true;
-        document.getElementById('submitBtn').disabled = true;
-        
-        if(isTestMode){
-            if(score > 0){
-                let name = prompt(`🎉 ${score} Punkte! Dein Name für die Bestenliste:`, playerName);
-                if(name?.trim()) db.ref('scores').push({ name: name.trim().substring(0,20), score: score, timestamp: Date.now() });
-            }
-            showResult(score > 0, false, score, 0);
-            return;
+    function endGame(){
+        gameActive=false; if(timerInt) clearInterval(timerInt);
+        document.getElementById('answerInput').disabled=true; document.getElementById('submitBtn').disabled=true;
+        if(score>0){
+            let name = prompt(`${translations[currentLang].game_over} ${score} ${translations[currentLang].score}! ${currentLang==='de'?'Dein Name':'Your name'}:`, "Spieler");
+            if(name?.trim()) db.ref('scores').push({ name: name.trim().substring(0,20), score: score, timestamp: Date.now() });
         }
-        
-        if(roomId && playerId && db){
-            await db.ref(`pvp_rooms/${roomId}/players/${playerId}/finished`).set(true);
-            await db.ref(`pvp_rooms/${roomId}/players/${playerId}/finalScore`).set(score);
-            
-            const roomSnap = await db.ref(`pvp_rooms/${roomId}`).once('value');
-            const room = roomSnap.val();
-            if(room && room.players){
-                const players = room.players;
-                const pIds = Object.keys(players);
-                if(pIds.length >= 2 && players[pIds[0]]?.finished && players[pIds[1]]?.finished){
-                    const p1s = players[pIds[0]].finalScore || 0;
-                    const p2s = players[pIds[1]].finalScore || 0;
-                    const isPlayer1 = playerId === pIds[0];
-                    const myFinal = isPlayer1 ? p1s : p2s;
-                    const oppFinal = isPlayer1 ? p2s : p1s;
-                    
-                    if(myFinal > oppFinal) showResult(true, false, myFinal, oppFinal);
-                    else if(myFinal < oppFinal) showResult(false, false, myFinal, oppFinal);
-                    else showResult(false, true, myFinal, oppFinal);
-                    
-                    await db.ref(`pvp_rooms/${roomId}`).remove();
-                }
-            }
-        }
+        document.getElementById('feedbackMsg').innerHTML = translations[currentLang].game_over;
     }
-    
-    function correctAnswer(){
-        score += POINTS;
-        document.getElementById('myScore').innerHTML = score;
-        streak++;
-        document.getElementById('streakVal').innerHTML = streak;
-        if(streak > bestStreak){ bestStreak = streak; document.getElementById('bestStreakVal').innerHTML = bestStreak; }
-        document.getElementById('feedbackMsg').innerHTML = "✓ RICHTIG! +10";
+    function correct(){
+        score+=POINTS; document.getElementById('scoreVal').innerHTML=score;
+        streak++; document.getElementById('streakVal').innerHTML=streak;
+        if(streak>bestStreak){ bestStreak=streak; document.getElementById('bestStreakVal').innerHTML=bestStreak; }
+        document.getElementById('feedbackMsg').innerHTML = translations[currentLang].correct;
         document.getElementById('eqBlock').classList.add('correct-animation');
-        setTimeout(() => document.getElementById('eqBlock').classList.remove('correct-animation'), 250);
-        if(roomId && playerId && db && gameStarted && !isTestMode) db.ref(`pvp_rooms/${roomId}/players/${playerId}/score`).set(score);
-        currentQ = newQ(); updateUI();
-        document.getElementById('answerInput').value = '';
-        document.getElementById('answerInput').focus();
-        setTimeout(() => { if(gameActive) document.getElementById('feedbackMsg').innerHTML = "⚡ Weiter!"; }, 800);
-        if(roomCleanupTimeout) resetRoomCleanupTimer();
+        setTimeout(()=>document.getElementById('eqBlock').classList.remove('correct-animation'),250);
+        currentQ=newQ(); updateUI(); document.getElementById('answerInput').value=''; document.getElementById('answerInput').focus();
+        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = translations[currentLang].next; },800);
     }
-    
-    function wrongAnswer(){
-        streak = 0;
-        document.getElementById('streakVal').innerHTML = streak;
-        document.getElementById('feedbackMsg').innerHTML = `❌ Lösung: ${currentQ.answer}`;
+    function wrong(){
+        streak=0; document.getElementById('streakVal').innerHTML=streak;
+        document.getElementById('feedbackMsg').innerHTML = `❌ ${translations[currentLang].wrong} ${currentQ.answer}`;
         document.getElementById('eqBlock').classList.add('wrong-animation');
-        setTimeout(() => document.getElementById('eqBlock').classList.remove('wrong-animation'), 250);
-        currentQ = newQ(); updateUI();
-        document.getElementById('answerInput').value = '';
-        document.getElementById('answerInput').focus();
-        setTimeout(() => { if(gameActive) document.getElementById('feedbackMsg').innerHTML = "💪 Nächste!"; }, 800);
-        if(roomCleanupTimeout) resetRoomCleanupTimer();
+        setTimeout(()=>document.getElementById('eqBlock').classList.remove('wrong-animation'),250);
+        currentQ=newQ(); updateUI(); document.getElementById('answerInput').value=''; document.getElementById('answerInput').focus();
+        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = translations[currentLang].wrong; },800);
     }
-    
-    function checkAnswer(){
+    function check(){
         if(!gameActive) return;
-        let val = document.getElementById('answerInput').value.trim();
-        if(val === "") return;
-        let num = Number(val);
-        if(isNaN(num)){ document.getElementById('answerInput').value = ''; return; }
-        if(num === currentQ.answer) correctAnswer(); else wrongAnswer();
+        let val=document.getElementById('answerInput').value.trim();
+        if(val==="") return;
+        let num=Number(val);
+        if(isNaN(num)){ document.getElementById('answerInput').value=''; return; }
+        if(num===currentQ.answer) correct(); else wrong();
     }
-    
-    function startGameLogic(opponentName){
-        gameStarted = true;
-        gameActive = true;
-        score = 0; timeLeft = START_TIME; streak = 0; bestStreak = 0;
-        document.getElementById('myScore').innerHTML = "0";
-        document.getElementById('timerVal').innerHTML = timeLeft;
-        document.getElementById('streakVal').innerHTML = "0";
-        document.getElementById('bestStreakVal').innerHTML = "0";
-        document.getElementById('opponentNameGame').innerHTML = opponentName;
-        document.getElementById('opponentScoreGame').innerHTML = "0";
-        document.getElementById('answerInput').disabled = false;
-        document.getElementById('submitBtn').disabled = false;
-        document.getElementById('answerInput').value = '';
-        currentQ = newQ(); updateUI();
-        startTimer();
-        document.getElementById('feedbackMsg').innerHTML = "⚔️ KAMPF BEGINNT! 30 Sekunden!";
+    function startGame(){
+        gameActive=true; score=0; timeLeft=START_TIME; streak=0;
+        document.getElementById('scoreVal').innerHTML="0"; document.getElementById('timerVal').innerHTML=timeLeft;
+        document.getElementById('streakVal').innerHTML="0"; document.getElementById('answerInput').disabled=false;
+        document.getElementById('submitBtn').disabled=false; document.getElementById('answerInput').value='';
+        currentQ=newQ(); updateUI(); startTimer();
+        document.getElementById('feedbackMsg').innerHTML = translations[currentLang].next;
         document.getElementById('answerInput').focus();
-        
-        if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
-        
-        if(!isTestMode && opponentId){
-            db.ref(`pvp_rooms/${roomId}/players/${opponentId}/score`).on('value', (snap) => {
-                document.getElementById('opponentScoreGame').innerHTML = snap.val() || 0;
-            });
-            db.ref(`pvp_rooms/${roomId}/players/${opponentId}/finished`).on('value', (snap) => {
-                if(snap.val() === true && !gameEnded) endGame();
-            });
-        }
     }
+    document.getElementById('startBtn').onclick = () => { document.getElementById('readyModal').style.display='none'; startGame(); };
+    document.getElementById('cancelBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
+    document.getElementById('submitBtn').onclick = check;
+    document.getElementById('resetBtn').onclick = () => { if(timerInt) clearInterval(timerInt); startGame(); };
+    document.getElementById('menuBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
+    document.getElementById('answerInput').addEventListener('keypress', (e) => { if(e.key==='Enter' && gameActive) check(); });
+    document.getElementById('readyModal').style.display='flex';
+    document.getElementById('answerInput').disabled=true; document.getElementById('submitBtn').disabled=true;
     
-    // Countdown nach Ready
-    function startCountdownAndGame(opponentName) {
-        showCountdown(() => {
-            startGameLogic(opponentName);
-        });
-    }
-    
-    function startTestMode(){
-        isTestMode = true;
-        playerName = document.getElementById('playerNameInput').value.trim();
-        if(!playerName){ alert("Bitte Namen eingeben"); return; }
-        
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('gameScreen').style.display = 'block';
-        document.getElementById('opponentNameGame').innerHTML = "🤖 BOT";
-        
-        showCountdown(() => {
-            startGameLogic("🤖 BOT");
-            botInterval = setInterval(() => {
-                if(gameActive && !gameEnded){
-                    let botScore = parseInt(document.getElementById('opponentScoreGame').innerHTML) || 0;
-                    let botGain = random(5, 15);
-                    document.getElementById('opponentScoreGame').innerHTML = botScore + botGain;
-                }
-            }, random(1500, 3000));
-        });
-    }
-    
-    // Heartbeat & Cleanup
-    function startHeartbeat() {
-        if(heartbeatInterval) clearInterval(heartbeatInterval);
-        heartbeatInterval = setInterval(() => {
-            if(roomId && playerId && db && !gameStarted && !gameEnded) {
-                db.ref(`pvp_rooms/${roomId}/players/${playerId}/lastActive`).set(Date.now());
-            }
-        }, 5000);
-    }
-    function stopHeartbeat() { if(heartbeatInterval) clearInterval(heartbeatInterval); }
-    function startRoomCleanupTimer() {
-        if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
-        roomCleanupTimeout = setTimeout(() => {
-            if(roomId && !gameStarted && !gameEnded) cleanupRoom();
-        }, INACTIVE_TIMEOUT);
-    }
-    function resetRoomCleanupTimer() {
-        if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
-        startRoomCleanupTimer();
-    }
-    async function cleanupRoom() {
-        if(roomId && db && !gameStarted && !gameEnded) {
-            await db.ref(`pvp_rooms/${roomId}`).remove();
-            alert("⚠️ Raum wurde aufgrund von Inaktivität geschlossen.");
-            window.location.href = 'index.html';
-        }
-    }
-    
-    // Lobby mit Ready-System
-    function setupLobbyListeners(){
-        const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
-        
-        roomRef.on('value', (snapshot) => {
-            const players = snapshot.val();
-            if(!players) return;
-            
-            const playerIds = Object.keys(players);
-            const playerCount = playerIds.length;
-            document.getElementById('playerCount').innerHTML = `${playerCount}/2`;
-            
-            if(playerIds[0]){
-                const p1 = players[playerIds[0]];
-                document.getElementById('player1Name').innerHTML = p1.name;
-                const p1Ready = p1.ready || false;
-                document.getElementById('player1Status').innerHTML = p1Ready ? "✅ bereit" : "⏳ wartet";
-                document.getElementById('player1Status').className = p1Ready ? "player-status status-ready" : "player-status status-waiting";
-                document.getElementById('player1Card').className = p1Ready ? "player-card ready" : "player-card";
-            }
-            
-            if(playerIds[1]){
-                const p2 = players[playerIds[1]];
-                document.getElementById('player2Name').innerHTML = p2.name;
-                const p2Ready = p2.ready || false;
-                document.getElementById('player2Status').innerHTML = p2Ready ? "✅ bereit" : "⏳ wartet";
-                document.getElementById('player2Status').className = p2Ready ? "player-status status-ready" : "player-status status-waiting";
-                document.getElementById('player2Card').className = p2Ready ? "player-card ready" : "player-card";
-                opponentId = playerIds.find(id => id !== playerId);
-            } else {
-                document.getElementById('player2Name').innerHTML = "Wird geladen...";
-                document.getElementById('player2Status').innerHTML = "⏳ wartet";
-                document.getElementById('player2Card').className = "player-card";
-            }
-            
-            if(playerCount === 2){
-                const p1Ready = players[playerIds[0]]?.ready || false;
-                const p2Ready = players[playerIds[1]]?.ready || false;
-                
-                if(p1Ready && p2Ready && !gameStarted){
-                    const opponent = playerIds.find(id => id !== playerId);
-                    opponentId = opponent;
-                    const opponentName = players[opponent].name;
-                    document.getElementById('lobbyScreen').style.display = 'none';
-                    document.getElementById('gameScreen').style.display = 'block';
-                    startCountdownAndGame(opponentName);
-                }
-            }
-        });
-    }
-    
-    async function createRoom(){
-        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
-        roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const now = Date.now();
-        
-        await db.ref(`pvp_rooms/${roomId}`).set({
-            createdAt: now,
-            creator: playerId,
-            players: {
-                [playerId]: {
-                    name: playerName,
-                    score: 0,
-                    ready: false,
-                    finished: false,
-                    finalScore: 0,
-                    joinedAt: now,
-                    lastActive: now
-                }
-            }
-        });
-        
-        document.getElementById('waitingRoomCode').innerHTML = roomId;
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('waitingForPlayer').style.display = 'block';
-        
-        startHeartbeat();
-        startRoomCleanupTimer();
-        
-        const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
-        const waitListener = roomRef.on('value', (snapshot) => {
-            const players = snapshot.val();
-            if(players && Object.keys(players).length === 2){
-                roomRef.off('value', waitListener);
-                if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
-                document.getElementById('waitingForPlayer').style.display = 'none';
-                document.getElementById('lobbyScreen').style.display = 'block';
-                document.getElementById('lobbyRoomCode').innerHTML = roomId;
-                document.getElementById('displayRoomCode').innerHTML = roomId;
-                document.getElementById('player1Name').innerHTML = playerName;
-                setupLobbyListeners();
-                startRoomCleanupTimer();
-            }
-        });
-        
-        setTimeout(() => {
-            if(!gameStarted && !gameEnded) {
-                db.ref(`pvp_rooms/${roomId}`).remove();
-                if(document.getElementById('waitingForPlayer').style.display === 'block') {
-                    alert("⏰ Kein Gegner gefunden. Raum wurde geschlossen.");
-                    window.location.href = 'index.html';
-                }
-            }
-        }, 60000);
-    }
-    
-    async function joinRoom(roomCode){
-        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
-        roomId = roomCode.toUpperCase();
-        
-        const roomRef = db.ref(`pvp_rooms/${roomId}`);
-        const roomSnap = await roomRef.once('value');
-        const room = roomSnap.val();
-        
-        if(!room){ alert("Raum nicht gefunden!"); return false; }
-        if(room.players && Object.keys(room.players).length >= 2){ alert("Raum ist voll!"); return false; }
-        
-        const now = Date.now();
-        await roomRef.child(`players/${playerId}`).set({
-            name: playerName,
-            score: 0,
-            ready: false,
-            finished: false,
-            finalScore: 0,
-            joinedAt: now,
-            lastActive: now
-        });
-        
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('lobbyScreen').style.display = 'block';
-        document.getElementById('lobbyRoomCode').innerHTML = roomId;
-        document.getElementById('displayRoomCode').innerHTML = roomId;
-        
-        const players = room.players;
-        const player1Id = Object.keys(players)[0];
-        document.getElementById('player1Name').innerHTML = players[player1Id]?.name || "Spieler 1";
-        document.getElementById('player2Name').innerHTML = playerName;
-        
-        startHeartbeat();
-        startRoomCleanupTimer();
-        setupLobbyListeners();
-        return true;
-    }
-    
-    async function setReady(){
-        if(isReady) return;
-        isReady = true;
-        await db.ref(`pvp_rooms/${roomId}/players/${playerId}/ready`).set(true);
-        await db.ref(`pvp_rooms/${roomId}/players/${playerId}/lastActive`).set(Date.now());
-        const readyBtn = document.getElementById('readyButton');
-        readyBtn.innerHTML = "✅ BEREIT";
-        readyBtn.classList.add('ready-clicked');
-        readyBtn.disabled = true;
-        resetRoomCleanupTimer();
-    }
-    
-    async function cancelGame(){
-        stopHeartbeat();
-        if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
-        if(roomId && playerId && db && !isTestMode){
-            await db.ref(`pvp_rooms/${roomId}/players/${playerId}`).remove();
-            const remaining = await db.ref(`pvp_rooms/${roomId}/players`).once('value');
-            if(!remaining.exists()) await db.ref(`pvp_rooms/${roomId}`).remove();
-        }
-        window.location.href = 'index.html';
-    }
-    
-    function exitGame(){
-        if(timerInt) clearInterval(timerInt);
-        if(botInterval) clearInterval(botInterval);
-        cancelGame();
-    }
-    
-    function loadRooms(){
-        db.ref('pvp_rooms').once('value', (snapshot) => {
-            const rooms = snapshot.val();
-            const container = document.getElementById('roomList');
-            if(!rooms || Object.keys(rooms).length === 0){
-                container.innerHTML = '<div style="text-align:center; padding:20px;">Keine aktiven Räume</div>';
-                return;
-            }
-            let html = '';
-            const now = Date.now();
-            for(let [code, room] of Object.entries(rooms)){
-                const playerCount = room.players ? Object.keys(room.players).length : 0;
-                if(playerCount < 2){
-                    const players = room.players;
-                    if(players) {
-                        const hostId = room.creator;
-                        const host = players[hostId];
-                        const lastActive = host?.lastActive || host?.joinedAt || now;
-                        const isHostActive = (now - lastActive) < INACTIVE_TIMEOUT;
-                        if(isHostActive || playerCount === 1) {
-                            html += `<div class="room-item" onclick="joinRoomFromList('${code}')">
-                                <div><span class="room-code">📌 ${code}</span><br><small>${playerCount}/2 Spieler</small></div>
-                                <button style="background:#f5a623; border:none; padding:6px 16px; border-radius:30px; color:white; cursor:pointer;">Beitreten</button>
-                            </div>`;
-                        } else {
-                            db.ref(`pvp_rooms/${code}`).remove();
-                        }
-                    }
-                }
-            }
-            container.innerHTML = html || '<div style="text-align:center; padding:20px;">Keine verfügbaren Räume</div>';
-        });
-    }
-    
-    window.joinRoomFromList = async function(code){
-        const name = document.getElementById('playerNameInput').value.trim();
-        if(!name){ alert("Bitte Namen eingeben"); return; }
-        playerName = name;
-        await joinRoom(code);
-    };
-    
-    document.getElementById('createRoomBtn').onclick = () => {
-        const name = document.getElementById('playerNameInput').value.trim();
-        if(!name){ alert("Bitte Namen eingeben"); return; }
-        playerName = name;
-        createRoom();
-    };
-    document.getElementById('showRoomsBtn').onclick = () => {
-        const name = document.getElementById('playerNameInput').value.trim();
-        if(!name){ alert("Bitte Namen eingeben"); return; }
-        playerName = name;
-        loadRooms();
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('roomsModal').style.display = 'flex';
-    };
-    document.getElementById('testModeBtn').onclick = () => startTestMode();
-    document.getElementById('refreshRooms').onclick = loadRooms;
-    document.getElementById('closeRooms').onclick = () => {
-        document.getElementById('roomsModal').style.display = 'none';
-        document.getElementById('mainMenu').style.display = 'flex';
-    };
-    document.getElementById('backToMenuBtn').onclick = () => window.location.href = 'index.html';
-    document.getElementById('readyButton').onclick = setReady;
-    document.getElementById('cancelLobbyBtn').onclick = cancelGame;
-    document.getElementById('cancelWaitingBtn').onclick = cancelGame;
-    document.getElementById('submitBtn').onclick = checkAnswer;
-    document.getElementById('exitGameBtn').onclick = exitGame;
-    document.getElementById('answerInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && gameActive) checkAnswer(); });
+    // Sprache aus URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get('lang');
+    if(langParam && translations[langParam]) currentLang = langParam;
+    updateLanguage();
 </script>
 </body>
 </html>
