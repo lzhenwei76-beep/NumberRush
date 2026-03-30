@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Number Rush • Solo</title>
+    <title>Number Rush • Solo Mode</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -42,25 +42,6 @@
         .modal-content h2 { font-size: 1.6rem; color: #1a4d5e; margin-bottom: 16px; }
         .ready-btn { background: #f5a623; border: none; border-radius: 60px; padding: 12px 24px; font-size: 1rem; font-weight: 700; cursor: pointer; margin: 8px; }
         .cancel-btn { background: #e9ecef; color: #2c6b7c; }
-        .language-selector {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 16px 0;
-        }
-        .lang-btn {
-            background: #e9ecef;
-            border: none;
-            border-radius: 40px;
-            padding: 6px 16px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .lang-btn.active {
-            background: #f5a623;
-            color: white;
-        }
         @keyframes correctFlash { 50% { background: #d4edda; } }
         @keyframes wrongShake { 25%,75% { transform: translateX(4px); background: #ffe0e0; } }
         .correct-animation { animation: correctFlash 0.25s ease; }
@@ -72,92 +53,32 @@
 <div class="container">
     <div class="card">
         <div class="header">
-            <div class="stat"><div class="stat-label" id="scoreLabel">PUNKTE</div><div class="stat-value" id="scoreVal">0</div></div>
-            <div class="stat"><div class="stat-label" id="timeLabel">ZEIT</div><div class="stat-value" id="timerVal">30</div></div>
+            <div class="stat"><div class="stat-label">SCORE</div><div class="stat-value" id="scoreVal">0</div></div>
+            <div class="stat"><div class="stat-label">TIME</div><div class="stat-value" id="timerVal">30</div></div>
         </div>
         <div class="question-area">
             <div class="equation" id="eqBlock"><div class="equation-text" id="questionText">8 + 3 = ?</div></div>
             <div class="input-area"><input type="number" id="answerInput" class="answer-input" placeholder="?" inputmode="numeric"><button id="submitBtn" class="submit-btn">✓</button></div>
-            <div class="action-buttons"><button id="resetBtn" class="btn-action" id="resetBtnText">↻ NEU</button><button id="menuBtn" class="btn-action" id="menuBtnText">🏠 MENÜ</button></div>
-            <div class="feedback" id="feedbackMsg">👆 Tippe die Lösung</div>
+            <div class="action-buttons"><button id="resetBtn" class="btn-action">↻ NEW</button><button id="menuBtn" class="btn-action">🏠 MENU</button></div>
+            <div class="feedback" id="feedbackMsg">👆 Type the answer</div>
         </div>
-        <div class="streak-area"><div>🔥 <span id="streakLabel">SERIE</span> <span id="streakVal" class="streak-value">0</span></div><div>🏆 <span id="bestLabel">BESTE</span> <span id="bestStreakVal" class="streak-value">0</span></div></div>
+        <div class="streak-area"><div>🔥 STREAK <span id="streakVal" class="streak-value">0</span></div><div>🏆 BEST <span id="bestStreakVal" class="streak-value">0</span></div></div>
     </div>
-    <div class="language-selector">
-        <button class="lang-btn" data-lang="de">🇩🇪 Deutsch</button>
-        <button class="lang-btn" data-lang="en">🇬🇧 English</button>
-        <button class="lang-btn" data-lang="tr">🇹🇷 Türkçe</button>
-    </div>
-    <footer id="footer">⚡ 30 Sekunden • 10 Punkte pro richtige Antwort • Kein Zeitbonus</footer>
+    <footer>⚡ 30 seconds • 10 points per correct answer • No time bonus</footer>
 </div>
 
 <div id="readyModal" class="modal">
     <div class="modal-content">
-        <h2 id="readyTitle">🎯 BIST DU BEREIT?</h2>
-        <p id="readyText">30 Sekunden Zeit</p>
-        <button id="startBtn" class="ready-btn" id="startBtnText">START</button>
-        <button id="cancelBtn" class="ready-btn cancel-btn" id="cancelBtnText">ZURÜCK</button>
+        <h2>🎯 ARE YOU READY?</h2>
+        <p>30 seconds time</p>
+        <button id="startBtn" class="ready-btn">START</button>
+        <button id="cancelBtn" class="ready-btn cancel-btn">BACK</button>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-    // ========== SPRACHEN ==========
-    const translations = {
-        de: {
-            score: "PUNKTE", time: "ZEIT", streak: "SERIE", best: "BESTE",
-            ready_title: "🎯 BIST DU BEREIT?", ready_text: "30 Sekunden Zeit",
-            start: "START", back: "ZURÜCK", reset: "↻ NEU", menu: "🏠 MENÜ",
-            feedback_start: "👆 Tippe die Lösung", footer: "⚡ 30 Sekunden • 10 Punkte pro richtige Antwort • Kein Zeitbonus",
-            correct: "✓ RICHTIG! +10", next: "⚡ Weiter!", wrong: "💪 Nächste!", game_over: "⏰ SPIEL BEENDET!"
-        },
-        en: {
-            score: "SCORE", time: "TIME", streak: "STREAK", best: "BEST",
-            ready_title: "🎯 ARE YOU READY?", ready_text: "30 seconds time",
-            start: "START", back: "BACK", reset: "↻ NEW", menu: "🏠 MENU",
-            feedback_start: "👆 Type the answer", footer: "⚡ 30 seconds • 10 points per correct answer • No time bonus",
-            correct: "✓ CORRECT! +10", next: "⚡ Keep going!", wrong: "💪 Next one!", game_over: "⏰ GAME OVER!"
-        },
-        tr: {
-            score: "PUAN", time: "ZAMAN", streak: "SERİ", best: "EN İYİ",
-            ready_title: "🎯 HAZIR MISIN?", ready_text: "30 saniye süre",
-            start: "BAŞLA", back: "GERİ", reset: "↻ YENİ", menu: "🏠 MENÜ",
-            feedback_start: "👆 Cevabı yaz", footer: "⚡ 30 saniye • Doğru cevap 10 puan • Zaman bonusu yok",
-            correct: "✓ DOĞRU! +10", next: "⚡ Devam et!", wrong: "💪 Sıradaki!", game_over: "⏰ OYUN BİTTİ!"
-        }
-    };
-    
-    let currentLang = 'de';
-    function updateLanguage() {
-        const t = translations[currentLang];
-        document.getElementById('scoreLabel').innerText = t.score;
-        document.getElementById('timeLabel').innerText = t.time;
-        document.getElementById('streakLabel').innerText = t.streak;
-        document.getElementById('bestLabel').innerText = t.best;
-        document.getElementById('readyTitle').innerText = t.ready_title;
-        document.getElementById('readyText').innerText = t.ready_text;
-        document.getElementById('startBtn').innerText = t.start;
-        document.getElementById('cancelBtn').innerText = t.back;
-        document.getElementById('resetBtn').innerText = t.reset;
-        document.getElementById('menuBtn').innerText = t.menu;
-        document.getElementById('footer').innerText = t.footer;
-        if(!gameActive) document.getElementById('feedbackMsg').innerHTML = t.feedback_start;
-        
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            if(btn.dataset.lang === currentLang) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-    }
-    
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentLang = btn.dataset.lang;
-            updateLanguage();
-        });
-    });
-    
-    // Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
         authDomain: "mathnumberrush.firebaseapp.com",
@@ -198,28 +119,28 @@
         gameActive=false; if(timerInt) clearInterval(timerInt);
         document.getElementById('answerInput').disabled=true; document.getElementById('submitBtn').disabled=true;
         if(score>0){
-            let name = prompt(`${translations[currentLang].game_over} ${score} ${translations[currentLang].score}! ${currentLang==='de'?'Dein Name':'Your name'}:`, "Spieler");
+            let name = prompt(`🎉 GAME OVER! ${score} points!\nEnter your name for the leaderboard:`, "Player");
             if(name?.trim()) db.ref('scores').push({ name: name.trim().substring(0,20), score: score, timestamp: Date.now() });
         }
-        document.getElementById('feedbackMsg').innerHTML = translations[currentLang].game_over;
+        document.getElementById('feedbackMsg').innerHTML = "⏰ GAME OVER!";
     }
     function correct(){
         score+=POINTS; document.getElementById('scoreVal').innerHTML=score;
         streak++; document.getElementById('streakVal').innerHTML=streak;
         if(streak>bestStreak){ bestStreak=streak; document.getElementById('bestStreakVal').innerHTML=bestStreak; }
-        document.getElementById('feedbackMsg').innerHTML = translations[currentLang].correct;
+        document.getElementById('feedbackMsg').innerHTML = "✓ CORRECT! +10";
         document.getElementById('eqBlock').classList.add('correct-animation');
         setTimeout(()=>document.getElementById('eqBlock').classList.remove('correct-animation'),250);
         currentQ=newQ(); updateUI(); document.getElementById('answerInput').value=''; document.getElementById('answerInput').focus();
-        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = translations[currentLang].next; },800);
+        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = "⚡ Keep going!"; },800);
     }
     function wrong(){
         streak=0; document.getElementById('streakVal').innerHTML=streak;
-        document.getElementById('feedbackMsg').innerHTML = `❌ ${translations[currentLang].wrong} ${currentQ.answer}`;
+        document.getElementById('feedbackMsg').innerHTML = `❌ Wrong! Answer: ${currentQ.answer}`;
         document.getElementById('eqBlock').classList.add('wrong-animation');
         setTimeout(()=>document.getElementById('eqBlock').classList.remove('wrong-animation'),250);
         currentQ=newQ(); updateUI(); document.getElementById('answerInput').value=''; document.getElementById('answerInput').focus();
-        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = translations[currentLang].wrong; },800);
+        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = "💪 Next one!"; },800);
     }
     function check(){
         if(!gameActive) return;
@@ -235,23 +156,17 @@
         document.getElementById('streakVal').innerHTML="0"; document.getElementById('answerInput').disabled=false;
         document.getElementById('submitBtn').disabled=false; document.getElementById('answerInput').value='';
         currentQ=newQ(); updateUI(); startTimer();
-        document.getElementById('feedbackMsg').innerHTML = translations[currentLang].next;
+        document.getElementById('feedbackMsg').innerHTML = "🚀 GO!";
         document.getElementById('answerInput').focus();
     }
     document.getElementById('startBtn').onclick = () => { document.getElementById('readyModal').style.display='none'; startGame(); };
-    document.getElementById('cancelBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
+    document.getElementById('cancelBtn').onclick = () => window.location.href = 'index.html';
     document.getElementById('submitBtn').onclick = check;
     document.getElementById('resetBtn').onclick = () => { if(timerInt) clearInterval(timerInt); startGame(); };
-    document.getElementById('menuBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
+    document.getElementById('menuBtn').onclick = () => window.location.href = 'index.html';
     document.getElementById('answerInput').addEventListener('keypress', (e) => { if(e.key==='Enter' && gameActive) check(); });
     document.getElementById('readyModal').style.display='flex';
     document.getElementById('answerInput').disabled=true; document.getElementById('submitBtn').disabled=true;
-    
-    // Sprache aus URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const langParam = urlParams.get('lang');
-    if(langParam && translations[langParam]) currentLang = langParam;
-    updateLanguage();
 </script>
 </body>
 </html>
