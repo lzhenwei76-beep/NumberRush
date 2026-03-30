@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Number Rush • Hauptmenü</title>
+    <title>Number Rush • Main Menu</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -32,29 +32,7 @@
         .sub {
             color: #6b8f9c;
             font-size: 0.9rem;
-            margin-bottom: 24px;
-        }
-        .language-selector {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
             margin-bottom: 32px;
-        }
-        .lang-btn {
-            background: #e9ecef;
-            border: none;
-            border-radius: 40px;
-            padding: 8px 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #2c6b7c;
-        }
-        .lang-btn.active {
-            background: #f5a623;
-            color: white;
-            box-shadow: 0 2px 0 #b4621a;
         }
         .btn {
             display: block;
@@ -108,104 +86,27 @@
 <body>
 <div class="container">
     <div class="card">
-        <h1 id="title">⚡ NUMBER RUSH</h1>
-        <div class="sub" id="subtitle">Kopfrechnen • Solo oder Duell</div>
+        <h1>⚡ NUMBER RUSH</h1>
+        <div class="sub">Mental Math • Solo or Duel</div>
         
-        <div class="language-selector">
-            <button class="lang-btn active" data-lang="de">🇩🇪 Deutsch</button>
-            <button class="lang-btn" data-lang="en">🇬🇧 English</button>
-            <button class="lang-btn" data-lang="tr">🇹🇷 Türkçe</button>
-        </div>
-        
-        <button class="btn btn-solo" id="soloBtn" data-key="solo_mode">🎮 SOLO-MODUS</button>
-        <button class="btn btn-pvp" id="pvpBtn" data-key="pvp_mode">⚔️ PVP-MODUS</button>
-        <button class="btn btn-leaderboard" id="leaderboardBtn" data-key="leaderboard">🏆 BESTENLISTE</button>
+        <button class="btn btn-solo" id="soloBtn">🎮 SOLO MODE</button>
+        <button class="btn btn-pvp" id="pvpBtn">⚔️ PVP MODE</button>
+        <button class="btn btn-leaderboard" id="leaderboardBtn">🏆 LEADERBOARD</button>
     </div>
     
     <div id="leaderboardPanel" class="leaderboard-panel">
         <div class="leaderboard-header">
-            <h3 id="leaderboardTitle">🏆 BESTENLISTE</h3>
+            <h3>🏆 LEADERBOARD</h3>
             <button class="close-btn" id="closeLeaderboardBtn">✕</button>
         </div>
-        <div id="leaderboardList" class="leaderboard-list"><div class="empty" id="loadingText">Lade...</div></div>
+        <div id="leaderboardList" class="leaderboard-list"><div class="empty">Loading...</div></div>
     </div>
-    <footer id="footer">⚡ Richtige Antwort = 10 Punkte | 30 Sekunden Zeit</footer>
+    <footer>⚡ Correct answer = 10 points | 30 seconds time</footer>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-    // ========== SPRACHEN ==========
-    const translations = {
-        de: {
-            title: "⚡ NUMBER RUSH",
-            subtitle: "Kopfrechnen • Solo oder Duell",
-            solo_mode: "🎮 SOLO-MODUS",
-            pvp_mode: "⚔️ PVP-MODUS",
-            leaderboard: "🏆 BESTENLISTE",
-            leaderboard_title: "🏆 BESTENLISTE",
-            loading: "Lade...",
-            empty: "Keine Einträge",
-            footer: "⚡ Richtige Antwort = 10 Punkte | 30 Sekunden Zeit"
-        },
-        en: {
-            title: "⚡ NUMBER RUSH",
-            subtitle: "Mental Math • Solo or Duel",
-            solo_mode: "🎮 SOLO MODE",
-            pvp_mode: "⚔️ PVP MODE",
-            leaderboard: "🏆 LEADERBOARD",
-            leaderboard_title: "🏆 LEADERBOARD",
-            loading: "Loading...",
-            empty: "No entries",
-            footer: "⚡ Correct answer = 10 points | 30 seconds time"
-        },
-        tr: {
-            title: "⚡ NUMBER RUSH",
-            subtitle: "Zihinden Matematik • Solo veya Düello",
-            solo_mode: "🎮 SOLO MODU",
-            pvp_mode: "⚔️ PVP MODU",
-            leaderboard: "🏆 SIRALAMA",
-            leaderboard_title: "🏆 SIRALAMA",
-            loading: "Yükleniyor...",
-            empty: "Kayıt yok",
-            footer: "⚡ Doğru cevap = 10 puan | 30 saniye süre"
-        }
-    };
-    
-    let currentLang = 'de';
-    
-    function updateLanguage() {
-        const t = translations[currentLang];
-        document.getElementById('title').innerText = t.title;
-        document.getElementById('subtitle').innerText = t.subtitle;
-        document.getElementById('soloBtn').innerText = t.solo_mode;
-        document.getElementById('pvpBtn').innerText = t.pvp_mode;
-        document.getElementById('leaderboardBtn').innerText = t.leaderboard;
-        document.getElementById('leaderboardTitle').innerText = t.leaderboard_title;
-        document.getElementById('footer').innerText = t.footer;
-        
-        // Aktualisiere Leaderboard-Text falls sichtbar
-        const leaderboardList = document.getElementById('leaderboardList');
-        if(leaderboardList.querySelector('.empty')) {
-            leaderboardList.innerHTML = `<div class="empty">${t.empty}</div>`;
-        }
-        
-        // Aktiviere Sprach-Button
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            if(btn.dataset.lang === currentLang) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-    }
-    
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentLang = btn.dataset.lang;
-            updateLanguage();
-            loadLeaderboard();
-        });
-    });
-    
-    // Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
         authDomain: "mathnumberrush.firebaseapp.com",
@@ -219,14 +120,13 @@
     const db = firebase.database();
     
     function loadLeaderboard() {
-        const t = translations[currentLang];
         db.ref('scores').orderByChild('score').limitToLast(10).once('value', (snap) => {
             const scores = [];
             snap.forEach(s => { const v = s.val(); if(v?.name) scores.push({ name: v.name, score: v.score }); });
             scores.sort((a,b) => b.score - a.score);
             const container = document.getElementById('leaderboardList');
             if(scores.length === 0) {
-                container.innerHTML = `<div class="empty">${t.empty}</div>`;
+                container.innerHTML = '<div class="empty">No entries yet</div>';
                 return;
             }
             let html = '';
@@ -238,18 +138,11 @@
     }
     function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
     
-    document.getElementById('soloBtn').onclick = () => window.location.href = `solo.html?lang=${currentLang}`;
-    document.getElementById('pvpBtn').onclick = () => window.location.href = `pvp.html?lang=${currentLang}`;
+    document.getElementById('soloBtn').onclick = () => window.location.href = 'solo.html';
+    document.getElementById('pvpBtn').onclick = () => window.location.href = 'pvp.html';
     document.getElementById('leaderboardBtn').onclick = () => { loadLeaderboard(); document.getElementById('leaderboardPanel').style.display = 'block'; };
     document.getElementById('closeLeaderboardBtn').onclick = () => document.getElementById('leaderboardPanel').style.display = 'none';
     loadLeaderboard();
-    updateLanguage();
-    
-    // Sprache aus URL-Parameter laden
-    const urlParams = new URLSearchParams(window.location.search);
-    const langParam = urlParams.get('lang');
-    if(langParam && translations[langParam]) currentLang = langParam;
-    updateLanguage();
 </script>
 </body>
 </html>
