@@ -3,232 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Number Rush • Modus-Auswahl</title>
-    <!-- Firebase SDKs müssen geladen werden -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <title>Number Rush • Hauptmenü</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #0f2f3a 0%, #1a4d5e 100%);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #1a4d5e 0%, #0e3f4f 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 550px;
-            width: 100%;
-        }
-
-        .main-card {
+        .container { max-width: 500px; width: 100%; }
+        .card {
             background: white;
-            border-radius: 48px;
-            padding: 48px 32px;
+            border-radius: 40px;
+            padding: 40px 28px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
-
-        .logo h1 {
-            font-size: 3.2rem;
+        h1 {
+            font-size: 2.8rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #f5a623, #e67e22);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #1a4d5e;
             margin-bottom: 8px;
         }
-
-        .logo p {
+        .sub {
             color: #6b8f9c;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
         }
-
-        .features {
+        .language-selector {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
             gap: 12px;
-            margin: 32px 0;
+            margin-bottom: 32px;
         }
-
-        .feature-badge {
-            background: #f8f9fc;
-            padding: 8px 18px;
+        .lang-btn {
+            background: #e9ecef;
+            border: none;
             border-radius: 40px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
             color: #2c6b7c;
-            border: 1px solid #eef2f5;
         }
-
-        .mode-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            margin-bottom: 28px;
+        .lang-btn.active {
+            background: #f5a623;
+            color: white;
+            box-shadow: 0 2px 0 #b4621a;
         }
-
         .btn {
+            display: block;
+            width: 100%;
             border: none;
             border-radius: 60px;
-            padding: 18px 24px;
+            padding: 16px;
             font-size: 1.2rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.1s ease;
-            transform: translateY(-2px);
+            margin-bottom: 16px;
+            transition: transform 0.1s, box-shadow 0.1s;
         }
-
-        .btn:active {
-            transform: translateY(2px);
-        }
-
-        .btn-solo {
-            background: #2c6b7c;
-            color: white;
-            box-shadow: 0 6px 0 #15424f;
-        }
-
-        .btn-pvp {
-            background: #e67e22;
-            color: white;
-            box-shadow: 0 6px 0 #b45f1b;
-        }
-
-        .btn-leaderboard {
-            background: #e9ecef;
-            color: #2c6b7c;
-            box-shadow: 0 4px 0 #cbd5e0;
-            padding: 14px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            width: 100%;
-        }
-
+        .btn:active { transform: scale(0.98); }
+        .btn-solo { background: #2c6b7c; color: white; box-shadow: 0 4px 0 #15424f; }
+        .btn-pvp { background: #e67e22; color: white; box-shadow: 0 4px 0 #b45f1b; }
+        .btn-leaderboard { background: #e9ecef; color: #2c6b7c; box-shadow: 0 2px 0 #cbd5e0; margin-bottom: 0; }
         .leaderboard-panel {
             background: white;
             border-radius: 32px;
             margin-top: 20px;
             overflow: hidden;
             display: none;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
-
         .leaderboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 24px;
+            padding: 16px 20px;
             background: #f8f9fc;
             border-bottom: 1px solid #eef2f5;
         }
-
-        .leaderboard-header h3 {
-            font-size: 1.2rem;
-            color: #1a4d5e;
-        }
-
-        .close-leaderboard {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #8ba0aa;
-            padding: 0 8px;
-        }
-
-        .leaderboard-list {
-            padding: 8px 0;
-            max-height: 380px;
-            overflow-y: auto;
-        }
-
+        .leaderboard-header h3 { font-size: 1.1rem; color: #1a4d5e; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #8ba0aa; }
+        .leaderboard-list { padding: 8px 0; max-height: 350px; overflow-y: auto; }
         .rank-item {
             display: flex;
             align-items: center;
-            padding: 14px 24px;
+            padding: 12px 20px;
             border-bottom: 1px solid #f0f2f5;
         }
-
-        .rank-number {
-            width: 55px;
-            font-weight: 700;
-            color: #8ba0aa;
-        }
-
-        .rank-name {
-            flex: 1;
-            font-weight: 500;
-            color: #2c5a6e;
-        }
-
-        .rank-score {
-            font-weight: 700;
-            color: #f5a623;
-        }
-
-        .rank-item.top-1 { background: #fff9ef; border-radius: 16px; margin: 4px 12px; }
+        .rank-number { width: 45px; font-weight: 700; color: #8ba0aa; }
+        .rank-name { flex: 1; font-weight: 500; color: #2c5a6e; }
+        .rank-score { font-weight: 700; color: #f5a623; }
+        .rank-item.top-1 { background: #fff9ef; }
         .rank-item.top-1 .rank-number { color: #f5a623; }
-        .empty-leaderboard {
-            text-align: center;
-            padding: 40px;
-            color: #8ba0aa;
-        }
-
-        footer {
-            text-align: center;
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.5);
-            margin-top: 20px;
-        }
+        .empty { text-align: center; padding: 32px; color: #8ba0aa; }
+        footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 20px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="main-card">
-        <div class="logo">
-            <h1>⚡ NUMBER RUSH</h1>
-            <p>Kopfrechnen • Schnell • Weltweit</p>
+    <div class="card">
+        <h1 id="title">⚡ NUMBER RUSH</h1>
+        <div class="sub" id="subtitle">Kopfrechnen • Solo oder Duell</div>
+        
+        <div class="language-selector">
+            <button class="lang-btn active" data-lang="de">🇩🇪 Deutsch</button>
+            <button class="lang-btn" data-lang="en">🇬🇧 English</button>
+            <button class="lang-btn" data-lang="tr">🇹🇷 Türkçe</button>
         </div>
-
-        <div class="features">
-            <span class="feature-badge">🎯 +10 Punkte pro Treffer</span>
-            <span class="feature-badge">⏱️ +0.8 Sekunden Bonus</span>
-            <span class="feature-badge">⚔️ PvP-Duell</span>
-            <span class="feature-badge">🏆 Weltweite Bestenliste</span>
-        </div>
-
-        <div class="mode-buttons">
-            <button class="btn btn-solo" id="soloModeBtn">🎮 SOLO-MODUS</button>
-            <button class="btn btn-pvp" id="pvpModeBtn">⚔️ PVP-MODUS</button>
-        </div>
-
-        <button class="btn btn-leaderboard" id="showLeaderboardBtn">🏆 BESTENLISTE ANSEHEN</button>
+        
+        <button class="btn btn-solo" id="soloBtn" data-key="solo_mode">🎮 SOLO-MODUS</button>
+        <button class="btn btn-pvp" id="pvpBtn" data-key="pvp_mode">⚔️ PVP-MODUS</button>
+        <button class="btn btn-leaderboard" id="leaderboardBtn" data-key="leaderboard">🏆 BESTENLISTE</button>
     </div>
-
+    
     <div id="leaderboardPanel" class="leaderboard-panel">
         <div class="leaderboard-header">
-            <h3>🏆 BESTENLISTE (SOLO)</h3>
-            <button id="closeLeaderboardBtn" class="close-leaderboard">✕</button>
+            <h3 id="leaderboardTitle">🏆 BESTENLISTE</h3>
+            <button class="close-btn" id="closeLeaderboardBtn">✕</button>
         </div>
-        <div id="leaderboardList" class="leaderboard-list">
-            <div class="empty-leaderboard">Lade Bestenliste...</div>
-        </div>
+        <div id="leaderboardList" class="leaderboard-list"><div class="empty" id="loadingText">Lade...</div></div>
     </div>
-    <footer>⚡ Schnell rechnen = mehr Punkte | PvP: Wer in 30 Sekunden mehr Punkte hat, gewinnt!</footer>
+    <footer id="footer">⚡ Richtige Antwort = 10 Punkte | 30 Sekunden Zeit</footer>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-    // Firebase Konfiguration
+    // ========== SPRACHEN ==========
+    const translations = {
+        de: {
+            title: "⚡ NUMBER RUSH",
+            subtitle: "Kopfrechnen • Solo oder Duell",
+            solo_mode: "🎮 SOLO-MODUS",
+            pvp_mode: "⚔️ PVP-MODUS",
+            leaderboard: "🏆 BESTENLISTE",
+            leaderboard_title: "🏆 BESTENLISTE",
+            loading: "Lade...",
+            empty: "Keine Einträge",
+            footer: "⚡ Richtige Antwort = 10 Punkte | 30 Sekunden Zeit"
+        },
+        en: {
+            title: "⚡ NUMBER RUSH",
+            subtitle: "Mental Math • Solo or Duel",
+            solo_mode: "🎮 SOLO MODE",
+            pvp_mode: "⚔️ PVP MODE",
+            leaderboard: "🏆 LEADERBOARD",
+            leaderboard_title: "🏆 LEADERBOARD",
+            loading: "Loading...",
+            empty: "No entries",
+            footer: "⚡ Correct answer = 10 points | 30 seconds time"
+        },
+        tr: {
+            title: "⚡ NUMBER RUSH",
+            subtitle: "Zihinden Matematik • Solo veya Düello",
+            solo_mode: "🎮 SOLO MODU",
+            pvp_mode: "⚔️ PVP MODU",
+            leaderboard: "🏆 SIRALAMA",
+            leaderboard_title: "🏆 SIRALAMA",
+            loading: "Yükleniyor...",
+            empty: "Kayıt yok",
+            footer: "⚡ Doğru cevap = 10 puan | 30 saniye süre"
+        }
+    };
+    
+    let currentLang = 'de';
+    
+    function updateLanguage() {
+        const t = translations[currentLang];
+        document.getElementById('title').innerText = t.title;
+        document.getElementById('subtitle').innerText = t.subtitle;
+        document.getElementById('soloBtn').innerText = t.solo_mode;
+        document.getElementById('pvpBtn').innerText = t.pvp_mode;
+        document.getElementById('leaderboardBtn').innerText = t.leaderboard;
+        document.getElementById('leaderboardTitle').innerText = t.leaderboard_title;
+        document.getElementById('footer').innerText = t.footer;
+        
+        // Aktualisiere Leaderboard-Text falls sichtbar
+        const leaderboardList = document.getElementById('leaderboardList');
+        if(leaderboardList.querySelector('.empty')) {
+            leaderboardList.innerHTML = `<div class="empty">${t.empty}</div>`;
+        }
+        
+        // Aktiviere Sprach-Button
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            if(btn.dataset.lang === currentLang) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+    
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentLang = btn.dataset.lang;
+            updateLanguage();
+            loadLeaderboard();
+        });
+    });
+    
+    // Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
         authDomain: "mathnumberrush.firebaseapp.com",
@@ -236,127 +213,43 @@
         projectId: "mathnumberrush",
         storageBucket: "mathnumberrush.firebasestorage.app",
         messagingSenderId: "1072751880887",
-        appId: "1:1072751880887:web:b9ab1a74c6f40a6620bb32",
-        measurementId: "G-3QDHYZHNCY"
+        appId: "1:1072751880887:web:b9ab1a74c6f40a6620bb32"
     };
-
-    // Firebase initialisieren
-    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-        console.log("Firebase initialisiert");
-    }
-
-    const db = (typeof firebase !== 'undefined' && firebase.apps.length) ? firebase.database() : null;
-    const scoresRef = db ? db.ref('scores') : null;
-
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
     function loadLeaderboard() {
-        if (!scoresRef) {
-            document.getElementById('leaderboardList').innerHTML = '<div class="empty-leaderboard">Datenbank nicht verfügbar</div>';
-            return;
-        }
-        
-        scoresRef.orderByChild('score').limitToLast(10).once('value', (snapshot) => {
+        const t = translations[currentLang];
+        db.ref('scores').orderByChild('score').limitToLast(10).once('value', (snap) => {
             const scores = [];
-            snapshot.forEach((child) => {
-                const val = child.val();
-                if (val && val.name && typeof val.score === 'number') {
-                    scores.push({ name: val.name, score: val.score });
-                }
-            });
-            scores.sort((a, b) => b.score - a.score);
-            
+            snap.forEach(s => { const v = s.val(); if(v?.name) scores.push({ name: v.name, score: v.score }); });
+            scores.sort((a,b) => b.score - a.score);
             const container = document.getElementById('leaderboardList');
-            if (scores.length === 0) {
-                container.innerHTML = '<div class="empty-leaderboard">✨ Keine Einträge. Sei der Erste!</div>';
+            if(scores.length === 0) {
+                container.innerHTML = `<div class="empty">${t.empty}</div>`;
                 return;
             }
-            
             let html = '';
-            scores.forEach((entry, idx) => {
-                let rankClass = '';
-                if (idx === 0) rankClass = 'top-1';
-                else if (idx === 1) rankClass = 'top-2';
-                else if (idx === 2) rankClass = 'top-3';
-                html += `
-                    <div class="rank-item ${rankClass}">
-                        <div class="rank-number">${idx + 1}.</div>
-                        <div class="rank-name">${escapeHtml(entry.name)}</div>
-                        <div class="rank-score">${entry.score}</div>
-                    </div>
-                `;
+            scores.forEach((e,i) => {
+                html += `<div class="rank-item ${i===0?'top-1':''}"><div class="rank-number">${i+1}.</div><div class="rank-name">${escapeHtml(e.name)}</div><div class="rank-score">${e.score}</div></div>`;
             });
             container.innerHTML = html;
-        }).catch((err) => {
-            console.error("Fehler beim Laden:", err);
-            document.getElementById('leaderboardList').innerHTML = '<div class="empty-leaderboard">Fehler beim Laden</div>';
         });
     }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function showLeaderboard() {
-        loadLeaderboard();
-        document.getElementById('leaderboardPanel').style.display = 'block';
-    }
-
-    function hideLeaderboard() {
-        document.getElementById('leaderboardPanel').style.display = 'none';
-    }
-
-    // Navigation mit window.location.href
-    function goToSolo() {
-        console.log("Gehe zu Solo-Modus");
-        window.location.href = 'solo.html';
-    }
-
-    function goToPvP() {
-        console.log("Gehe zu PvP-Modus");
-        window.location.href = 'pvp.html';
-    }
-
-    // Event Listener - WICHTIG: Die Elemente müssen existieren
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM geladen");
-        
-        const soloBtn = document.getElementById('soloModeBtn');
-        const pvpBtn = document.getElementById('pvpModeBtn');
-        const leaderboardBtn = document.getElementById('showLeaderboardBtn');
-        const closeBtn = document.getElementById('closeLeaderboardBtn');
-        
-        if (soloBtn) {
-            soloBtn.addEventListener('click', goToSolo);
-            console.log("Solo-Button Listener hinzugefügt");
-        } else {
-            console.error("Solo-Button nicht gefunden");
-        }
-        
-        if (pvpBtn) {
-            pvpBtn.addEventListener('click', goToPvP);
-            console.log("PvP-Button Listener hinzugefügt");
-        } else {
-            console.error("PvP-Button nicht gefunden");
-        }
-        
-        if (leaderboardBtn) {
-            leaderboardBtn.addEventListener('click', showLeaderboard);
-        }
-        
-        if (closeBtn) {
-            closeBtn.addEventListener('click', hideLeaderboard);
-        }
-        
-        // Klick außerhalb schließen
-        window.addEventListener('click', (e) => {
-            const panel = document.getElementById('leaderboardPanel');
-            if (e.target === panel) hideLeaderboard();
-        });
-    });
+    function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
     
+    document.getElementById('soloBtn').onclick = () => window.location.href = `solo.html?lang=${currentLang}`;
+    document.getElementById('pvpBtn').onclick = () => window.location.href = `pvp.html?lang=${currentLang}`;
+    document.getElementById('leaderboardBtn').onclick = () => { loadLeaderboard(); document.getElementById('leaderboardPanel').style.display = 'block'; };
+    document.getElementById('closeLeaderboardBtn').onclick = () => document.getElementById('leaderboardPanel').style.display = 'none';
     loadLeaderboard();
+    updateLanguage();
+    
+    // Sprache aus URL-Parameter laden
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get('lang');
+    if(langParam && translations[langParam]) currentLang = langParam;
+    updateLanguage();
 </script>
 </body>
 </html>
