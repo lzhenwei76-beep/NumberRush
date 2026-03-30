@@ -20,13 +20,11 @@
         .container { max-width: 600px; width: 100%; }
         .card { background: white; border-radius: 48px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         
-        /* Header */
         .header { background: #1e3e4a; padding: 20px 24px; display: flex; justify-content: space-between; }
         .stat { background: rgba(0,0,0,0.3); border-radius: 60px; padding: 6px 20px; text-align: center; }
         .stat-label { font-size: 0.7rem; color: #b9dfed; text-transform: uppercase; letter-spacing: 1px; }
         .stat-value { font-size: 2rem; font-weight: 800; color: #ffdd99; line-height: 1.2; }
         
-        /* Buttons mit 3D-Effekt */
         .btn {
             border: none;
             border-radius: 60px;
@@ -36,10 +34,7 @@
             transform: translateY(-2px);
         }
         .btn:active { transform: translateY(3px); }
-        .btn-primary { background: #f5a623; color: white; box-shadow: 0 5px 0 #b4621a; padding: 14px 24px; font-size: 1rem; }
-        .btn-secondary { background: #e9ecef; color: #2c6b7c; box-shadow: 0 4px 0 #cbd5e0; padding: 12px 20px; font-size: 0.9rem; }
         
-        /* Lobby Spielerkarten */
         .lobby-container { padding: 32px 24px; background: white; text-align: center; }
         .players-row { display: flex; justify-content: center; align-items: center; gap: 30px; margin: 32px 0; flex-wrap: wrap; }
         .player-card {
@@ -58,7 +53,6 @@
         .player-status { font-size: 0.85rem; padding: 6px 16px; border-radius: 40px; display: inline-block; }
         .status-waiting { background: #e9ecef; color: #8ba0aa; }
         .status-ready { background: #4caf50; color: white; }
-        .status-host { background: #f5a623; color: white; }
         .vs-divider { font-size: 2rem; font-weight: 800; color: #e67e22; background: white; padding: 0 10px; }
         
         .room-code-box { background: #f8f9fc; border-radius: 60px; padding: 14px 24px; margin: 20px 0; display: inline-block; }
@@ -98,7 +92,6 @@
         }
         .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e0; }
         
-        /* Fragebereich */
         .question-area { padding: 32px 24px; background: white; }
         .equation { background: #f8f9fc; border-radius: 48px; padding: 36px 20px; text-align: center; border: 1px solid #eef2f5; }
         .equation-text { font-size: 3rem; font-weight: 800; font-family: monospace; color: #2c6b7c; letter-spacing: 4px; }
@@ -114,42 +107,93 @@
         .opponent-bar { background: #f8f9fc; padding: 14px 24px; display: flex; justify-content: space-between; border-bottom: 1px solid #eef2f5; }
         .vs-badge { background: #e67e22; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; margin-right: 12px; }
         
-        /* Modal */
-        .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; border-radius: 48px; padding: 40px 32px; max-width: 380px; width: 90%; text-align: center; animation: fadeInUp 0.3s ease; }
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 48px;
+            padding: 40px 32px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            animation: fadeInUp 0.3s ease;
+        }
         .modal-content h2 { font-size: 1.8rem; color: #1a4d5e; margin-bottom: 16px; }
         .modal-content input { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 60px; text-align: center; font-size: 1rem; margin: 20px 0; outline: none; }
         .modal-content input:focus { border-color: #f5a623; }
-        .modal-btn { padding: 14px; border-radius: 60px; font-size: 1rem; font-weight: 600; border: none; cursor: pointer; margin: 8px 0; width: 100%; transition: all 0.05s linear; transform: translateY(-2px); }
+        .modal-btn {
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin: 8px 0;
+            width: 100%;
+            transition: all 0.05s linear;
+            transform: translateY(-2px);
+        }
         .modal-btn:active { transform: translateY(2px); }
         .room-list { max-height: 280px; overflow-y: auto; margin: 16px 0; }
-        .room-item { background: #f8f9fc; padding: 14px; border-radius: 40px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .room-item {
+            background: #f8f9fc;
+            padding: 14px;
+            border-radius: 40px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
         .room-item:hover { background: #eef2f5; }
         .waiting-area { padding: 60px 32px; text-align: center; background: white; }
         .spinner { width: 50px; height: 50px; border: 4px solid #eef2f5; border-top-color: #f5a623; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .waiting-text { font-size: 1.2rem; color: #2c6b7c; margin-bottom: 8px; }
         
-        /* Countdown Overlay */
-        .countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 2000; flex-direction: column; }
+        .countdown-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; z-index: 2000; flex-direction: column;
+        }
         .countdown-number { font-size: 9rem; font-weight: 800; color: #f5a623; text-shadow: 0 0 30px rgba(245,166,35,0.5); animation: pulse 0.4s ease; }
         .countdown-text { font-size: 2rem; color: white; margin-top: 24px; letter-spacing: 2px; }
         @keyframes pulse { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         
-        /* Ergebnis Popup */
-        .result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .result-card { background: white; border-radius: 60px; padding: 48px 40px; text-align: center; max-width: 360px; width: 90%; animation: slideIn 0.3s ease; }
+        .result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .result-card {
+            background: white; border-radius: 60px; padding: 48px 40px; text-align: center;
+            max-width: 360px; width: 90%; animation: slideIn 0.3s ease;
+        }
         .result-card.win { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
         .result-card.lose { background: linear-gradient(135deg, #ffebee, #ffcdd2); }
         .result-card.draw { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
         .result-icon { font-size: 5rem; margin-bottom: 20px; }
         .result-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
         .result-score { font-size: 1.4rem; color: #2c6b7c; margin: 20px 0; font-weight: 600; }
-        .result-btn { background: #f5a623; border: none; border-radius: 60px; padding: 14px 36px; font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 5px 0 #b4621a; transform: translateY(-2px); }
+        .result-btn {
+            background: #f5a623; border: none; border-radius: 60px; padding: 14px 36px;
+            font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer;
+            box-shadow: 0 5px 0 #b4621a; transform: translateY(-2px);
+        }
         .result-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b4621a; }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        /* Animationen */
         @keyframes correctFlash { 0% { background: #f8f9fc; } 50% { background: #d4edda; transform: scale(1.01); } 100% { background: #f8f9fc; } }
         @keyframes wrongShake { 0%,100% { transform: translateX(0); background: #f8f9fc; } 25% { transform: translateX(5px); background: #ffe0e0; } 75% { transform: translateX(-5px); background: #ffe0e0; } }
         .correct-animation { animation: correctFlash 0.25s ease; }
@@ -158,13 +202,13 @@
         
         footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 20px; }
         .cleanup-notice { font-size: 0.7rem; color: #8ba0aa; margin-top: 12px; }
-        .host-badge { background: #f5a623; color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; display: inline-block; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 <div class="container">
     <!-- Main Menu -->
-    <div id="mainMenu" class="modal" style="display: flex;">
+    <div id="mainMenu" class="modal">
         <div class="modal-content">
             <h2>⚔️ PVP DUEL</h2>
             <input type="text" id="playerNameInput" maxlength="20" placeholder="Your Name" autocomplete="off">
@@ -271,6 +315,7 @@
     let countdownInterval = null;
     let isHost = false;
     let hostId = null;
+    let roomCleanupTimeout = null;
 
     const ops = ['+', '−', '×'];
     function random(m,n){ return Math.floor(Math.random()*(n-m+1))+m; }
@@ -402,7 +447,8 @@
     function startTestMode(){
         isTestMode = true; playerName = document.getElementById('playerNameInput').value.trim();
         if(!playerName){ alert("Please enter your name"); return; }
-        document.getElementById('mainMenu').style.display = 'none'; document.getElementById('gameScreen').style.display = 'block';
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
         document.getElementById('opponentNameGame').innerHTML = "🤖 BOT";
         showCountdown(() => {
             startGameLogic("🤖 BOT");
@@ -410,7 +456,6 @@
         });
     }
 
-    // Heartbeat für Host-Online-Status
     function startHeartbeat() {
         if(heartbeatInterval) clearInterval(heartbeatInterval);
         heartbeatInterval = setInterval(() => {
@@ -421,7 +466,6 @@
     }
     function stopHeartbeat() { if(heartbeatInterval) clearInterval(heartbeatInterval); }
 
-    // Host-Überwachung (nur für Nicht-Host-Spieler)
     function startHostMonitoring() {
         if(hostCheckInterval) clearInterval(hostCheckInterval);
         hostCheckInterval = setInterval(async () => {
@@ -433,7 +477,6 @@
                 const isHostOnline = (now - lastActive) < INACTIVE_TIMEOUT;
                 
                 if(!isHostOnline && !gameStarted && !gameEnded) {
-                    // Host ist offline -> Raum wird geschlossen
                     alert("⚠️ The host has gone offline. The room will be closed.");
                     await db.ref(`pvp_rooms/${roomId}`).remove();
                     window.location.href = 'index.html';
@@ -443,12 +486,10 @@
     }
     function stopHostMonitoring() { if(hostCheckInterval) clearInterval(hostCheckInterval); }
 
-    // Nur Host löscht den Raum bei Inaktivität
     function startHostInactivityCleanup() {
         if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
         roomCleanupTimeout = setTimeout(async () => {
             if(roomId && db && !gameStarted && !gameEnded && isHost) {
-                // Nur der Host löscht den Raum bei Inaktivität
                 await db.ref(`pvp_rooms/${roomId}`).remove();
                 if(!gameStarted && !gameEnded) {
                     alert("⚠️ Room closed due to host inactivity.");
@@ -457,7 +498,6 @@
             }
         }, INACTIVE_TIMEOUT);
     }
-    let roomCleanupTimeout = null;
     function resetHostInactivityTimer() { if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout); startHostInactivityCleanup(); }
 
     function setupLobbyListeners(){
@@ -469,19 +509,17 @@
             const playerCount = playerIds.length;
             document.getElementById('playerCount').innerHTML = `${playerCount}/2`;
             
-            // Host anzeigen (Spieler 1 = Host)
             if(playerIds[0]){
                 const p1 = players[playerIds[0]];
-                document.getElementById('player1Name').innerHTML = p1.name + (isHost ? ' 👑' : '');
+                document.getElementById('player1Name').innerHTML = p1.name + (playerIds[0] === playerId ? ' (You)' : '');
                 const p1Ready = p1.ready || false;
                 document.getElementById('player1Status').innerHTML = p1Ready ? "✅ ready" : "⏳ waiting";
                 document.getElementById('player1Status').className = p1Ready ? "player-status status-ready" : "player-status status-waiting";
                 document.getElementById('player1Card').className = p1Ready ? "player-card ready" : "player-card";
-                if(playerIds[0] === playerId) document.getElementById('player1Card').classList.add('host');
             }
             if(playerIds[1]){
                 const p2 = players[playerIds[1]];
-                document.getElementById('player2Name').innerHTML = p2.name;
+                document.getElementById('player2Name').innerHTML = p2.name + (playerIds[1] === playerId ? ' (You)' : '');
                 const p2Ready = p2.ready || false;
                 document.getElementById('player2Status').innerHTML = p2Ready ? "✅ ready" : "⏳ waiting";
                 document.getElementById('player2Status').className = p2Ready ? "player-status status-ready" : "player-status status-waiting";
@@ -533,6 +571,7 @@
         
         document.getElementById('waitingRoomCode').innerHTML = roomId;
         document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('roomsModal').style.display = 'none';
         document.getElementById('waitingForPlayer').style.display = 'block';
         
         startHeartbeat();
@@ -548,7 +587,7 @@
                 document.getElementById('lobbyScreen').style.display = 'block';
                 document.getElementById('lobbyRoomCode').innerHTML = roomId;
                 document.getElementById('displayRoomCode').innerHTML = roomId;
-                document.getElementById('player1Name').innerHTML = playerName + ' 👑';
+                document.getElementById('player1Name').innerHTML = playerName + ' (You)';
                 setupLobbyListeners();
                 startHostInactivityCleanup();
             }
@@ -590,7 +629,10 @@
             isHost: false
         });
         
+        // Wichtig: Alle Modals schließen und Lobby anzeigen
         document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('roomsModal').style.display = 'none';
+        document.getElementById('waitingForPlayer').style.display = 'none';
         document.getElementById('lobbyScreen').style.display = 'block';
         document.getElementById('lobbyRoomCode').innerHTML = roomId;
         document.getElementById('displayRoomCode').innerHTML = roomId;
@@ -598,8 +640,8 @@
         const players = room.players;
         const player1Id = Object.keys(players)[0];
         const hostName = players[player1Id]?.name || "Host";
-        document.getElementById('player1Name').innerHTML = hostName + ' 👑';
-        document.getElementById('player2Name').innerHTML = playerName;
+        document.getElementById('player1Name').innerHTML = hostName;
+        document.getElementById('player2Name').innerHTML = playerName + ' (You)';
         
         startHeartbeat();
         startHostMonitoring();
@@ -626,7 +668,6 @@
         if(roomId && playerId && db && !isTestMode){
             await db.ref(`pvp_rooms/${roomId}/players/${playerId}`).remove();
             const remaining = await db.ref(`pvp_rooms/${roomId}/players`).once('value');
-            // Nur wenn der Host geht oder keine Spieler mehr da sind, Raum löschen
             if(!remaining.exists() || (isHost && Object.keys(remaining.val()).length === 0)) {
                 await db.ref(`pvp_rooms/${roomId}`).remove();
             }
@@ -663,13 +704,34 @@
         });
     }
 
-    window.joinRoomFromList = async function(code){ const name = document.getElementById('playerNameInput').value.trim(); if(!name){ alert("Please enter your name"); return; } playerName = name; await joinRoom(code); };
+    window.joinRoomFromList = async function(code){ 
+        const name = document.getElementById('playerNameInput').value.trim(); 
+        if(!name){ alert("Please enter your name"); return; } 
+        playerName = name; 
+        await joinRoom(code); 
+    };
 
-    document.getElementById('createRoomBtn').onclick = () => { const name = document.getElementById('playerNameInput').value.trim(); if(!name){ alert("Please enter your name"); return; } playerName = name; createRoom(); };
-    document.getElementById('showRoomsBtn').onclick = () => { const name = document.getElementById('playerNameInput').value.trim(); if(!name){ alert("Please enter your name"); return; } playerName = name; loadRooms(); document.getElementById('mainMenu').style.display = 'none'; document.getElementById('roomsModal').style.display = 'flex'; };
+    // Event Listener
+    document.getElementById('createRoomBtn').onclick = () => { 
+        const name = document.getElementById('playerNameInput').value.trim(); 
+        if(!name){ alert("Please enter your name"); return; } 
+        playerName = name; 
+        createRoom(); 
+    };
+    document.getElementById('showRoomsBtn').onclick = () => { 
+        const name = document.getElementById('playerNameInput').value.trim(); 
+        if(!name){ alert("Please enter your name"); return; } 
+        playerName = name; 
+        loadRooms(); 
+        document.getElementById('mainMenu').style.display = 'none'; 
+        document.getElementById('roomsModal').style.display = 'flex'; 
+    };
     document.getElementById('testModeBtn').onclick = startTestMode;
     document.getElementById('refreshRooms').onclick = loadRooms;
-    document.getElementById('closeRooms').onclick = () => { document.getElementById('roomsModal').style.display = 'none'; document.getElementById('mainMenu').style.display = 'flex'; };
+    document.getElementById('closeRooms').onclick = () => { 
+        document.getElementById('roomsModal').style.display = 'none'; 
+        document.getElementById('mainMenu').style.display = 'flex'; 
+    };
     document.getElementById('backToMenuBtn').onclick = () => window.location.href = 'index.html';
     document.getElementById('readyButton').onclick = setReady;
     document.getElementById('cancelLobbyBtn').onclick = cancelGame;
@@ -677,6 +739,9 @@
     document.getElementById('submitBtn').onclick = checkAnswer;
     document.getElementById('exitGameBtn').onclick = exitGame;
     document.getElementById('answerInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && gameActive) checkAnswer(); });
+    
+    // Initial: Hauptmenü anzeigen
+    document.getElementById('mainMenu').style.display = 'flex';
 </script>
 </body>
 </html>
