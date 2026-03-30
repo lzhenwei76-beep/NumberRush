@@ -9,7 +9,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #1a4d5e 0%, #0e3f4f 100%);
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1e9f0 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             justify-content: center;
@@ -17,14 +17,34 @@
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 600px; width: 100%; }
-        .card { background: white; border-radius: 48px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .container { max-width: 650px; width: 100%; }
         
-        .header { background: #1e3e4a; padding: 20px 24px; display: flex; justify-content: space-between; }
-        .stat { background: rgba(0,0,0,0.3); border-radius: 60px; padding: 6px 20px; text-align: center; }
-        .stat-label { font-size: 0.7rem; color: #b9dfed; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-value { font-size: 2rem; font-weight: 800; color: #ffdd99; line-height: 1.2; }
+        /* Hauptkarten */
+        .card {
+            background: white;
+            border-radius: 48px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 5px 15px rgba(0,0,0,0.05);
+        }
         
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c6b7c 0%, #1e5a6a 100%);
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stat {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 60px;
+            padding: 8px 24px;
+            text-align: center;
+        }
+        .stat-label { font-size: 0.7rem; color: #c8e6e9; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 2rem; font-weight: 800; color: white; line-height: 1.2; }
+        
+        /* Buttons mit 3D-Effekt */
         .btn {
             border: none;
             border-radius: 60px;
@@ -35,31 +55,47 @@
         }
         .btn:active { transform: translateY(3px); }
         
-        .lobby-container { padding: 32px 24px; background: white; text-align: center; }
+        /* Lobby Container */
+        .lobby-container { padding: 40px 28px; background: white; text-align: center; }
         .players-row { display: flex; justify-content: center; align-items: center; gap: 30px; margin: 32px 0; flex-wrap: wrap; }
         .player-card {
-            background: #f8f9fc;
+            background: #f8fbfd;
             border-radius: 40px;
             padding: 28px 32px;
             text-align: center;
-            min-width: 190px;
-            border: 3px solid #eef2f5;
+            min-width: 200px;
+            border: 2px solid #e2edf2;
             transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
-        .player-card.ready { border-color: #4caf50; background: #e8f5e9; }
-        .player-card.host { border-color: #f5a623; background: #fff8f0; }
+        .player-card.ready { border-color: #4caf50; background: #f0f9f0; }
+        .player-card.host { border-color: #ffb74d; background: #fff8f0; }
         .player-avatar { font-size: 3.5rem; margin-bottom: 12px; }
         .player-name { font-size: 1.3rem; font-weight: 700; color: #2c6b7c; margin-bottom: 8px; }
         .player-status { font-size: 0.85rem; padding: 6px 16px; border-radius: 40px; display: inline-block; }
         .status-waiting { background: #e9ecef; color: #8ba0aa; }
         .status-ready { background: #4caf50; color: white; }
-        .vs-divider { font-size: 2rem; font-weight: 800; color: #e67e22; background: white; padding: 0 10px; }
+        .vs-divider {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffb74d;
+            background: white;
+            padding: 0 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         
-        .room-code-box { background: #f8f9fc; border-radius: 60px; padding: 14px 24px; margin: 20px 0; display: inline-block; }
+        .room-code-box {
+            background: linear-gradient(135deg, #f0f7fa 0%, #e8f2f5 100%);
+            border-radius: 60px;
+            padding: 14px 24px;
+            margin: 20px 0;
+            display: inline-block;
+            border: 1px solid #d4e4e9;
+        }
         .room-code { font-family: monospace; font-size: 1.4rem; font-weight: bold; color: #e67e22; letter-spacing: 2px; }
         
         .ready-btn {
-            background: #f5a623;
+            background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
             border: none;
             border-radius: 60px;
             padding: 18px 56px;
@@ -67,17 +103,17 @@
             font-weight: 800;
             color: white;
             cursor: pointer;
-            box-shadow: 0 6px 0 #b4621a;
+            box-shadow: 0 6px 0 #e65100;
             transform: translateY(-2px);
             transition: all 0.05s linear;
             margin-top: 20px;
         }
-        .ready-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #b4621a; }
-        .ready-btn.disabled { background: #8ba0aa; box-shadow: 0 6px 0 #6b7f8a; cursor: not-allowed; transform: none; }
-        .ready-btn.ready-clicked { background: #4caf50; box-shadow: 0 6px 0 #2e7d32; }
+        .ready-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #e65100; }
+        .ready-btn.disabled { background: #b0bec5; box-shadow: 0 6px 0 #78909c; cursor: not-allowed; transform: none; }
+        .ready-btn.ready-clicked { background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%); box-shadow: 0 6px 0 #2e7d32; }
         
         .btn-action {
-            background: #e9ecef;
+            background: #eef2f5;
             border: none;
             border-radius: 60px;
             padding: 14px;
@@ -89,24 +125,71 @@
             transition: all 0.05s linear;
             transform: translateY(-2px);
             box-shadow: 0 4px 0 #cbd5e0;
+            color: #2c6b7c;
         }
         .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e0; }
         
-        .question-area { padding: 32px 24px; background: white; }
-        .equation { background: #f8f9fc; border-radius: 48px; padding: 36px 20px; text-align: center; border: 1px solid #eef2f5; }
+        /* Fragebereich */
+        .question-area { padding: 32px 28px; background: white; }
+        .equation {
+            background: linear-gradient(135deg, #f0f7fa 0%, #e8f2f5 100%);
+            border-radius: 48px;
+            padding: 36px 20px;
+            text-align: center;
+            border: 1px solid #d4e4e9;
+        }
         .equation-text { font-size: 3rem; font-weight: 800; font-family: monospace; color: #2c6b7c; letter-spacing: 4px; }
         .input-area { display: flex; gap: 12px; margin: 28px 0; }
-        .answer-input { flex: 1; border: 2px solid #e2e8f0; border-radius: 60px; font-size: 1.6rem; padding: 16px 24px; text-align: center; font-weight: 600; font-family: monospace; outline: none; }
-        .answer-input:focus { border-color: #f5a623; box-shadow: 0 0 0 3px rgba(245,166,35,0.2); }
-        .submit-btn { background: #f5a623; border: none; border-radius: 60px; padding: 16px 32px; font-size: 1.2rem; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 5px 0 #b4621a; transform: translateY(-2px); }
-        .submit-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b4621a; }
-        .feedback { background: #f8f9fc; border-radius: 40px; padding: 14px; text-align: center; font-size: 0.9rem; color: #5a7e8c; margin: 16px 0; }
-        .streak-area { display: flex; justify-content: center; gap: 48px; padding: 16px 24px; border-top: 1px solid #eef2f5; background: white; }
-        .streak-value { font-size: 1.4rem; font-weight: 800; color: #f5a623; }
+        .answer-input {
+            flex: 1;
+            border: 2px solid #d4e4e9;
+            border-radius: 60px;
+            font-size: 1.6rem;
+            padding: 16px 24px;
+            text-align: center;
+            font-weight: 600;
+            font-family: monospace;
+            outline: none;
+            background: white;
+            transition: all 0.2s;
+        }
+        .answer-input:focus { border-color: #ffb74d; box-shadow: 0 0 0 3px rgba(255,183,77,0.2); }
+        .submit-btn {
+            background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+            border: none;
+            border-radius: 60px;
+            padding: 16px 32px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #e65100;
+            transform: translateY(-2px);
+            transition: all 0.05s linear;
+        }
+        .submit-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #e65100; }
+        .feedback {
+            background: #f0f7fa;
+            border-radius: 40px;
+            padding: 14px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #5a7e8c;
+            margin: 16px 0;
+        }
+        .streak-area { display: flex; justify-content: center; gap: 48px; padding: 16px 24px; border-top: 1px solid #e2edf2; background: white; }
+        .streak-value { font-size: 1.4rem; font-weight: 800; color: #ff9800; }
         .streak-label { font-size: 0.7rem; color: #8ba0aa; text-transform: uppercase; letter-spacing: 1px; }
-        .opponent-bar { background: #f8f9fc; padding: 14px 24px; display: flex; justify-content: space-between; border-bottom: 1px solid #eef2f5; }
-        .vs-badge { background: #e67e22; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; margin-right: 12px; }
+        .opponent-bar {
+            background: #f0f7fa;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #d4e4e9;
+        }
+        .vs-badge { background: #ff9800; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; margin-right: 12px; }
         
+        /* Modal */
         .modal {
             display: flex;
             position: fixed;
@@ -114,8 +197,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -127,11 +210,21 @@
             max-width: 380px;
             width: 90%;
             text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
             animation: fadeInUp 0.3s ease;
         }
-        .modal-content h2 { font-size: 1.8rem; color: #1a4d5e; margin-bottom: 16px; }
-        .modal-content input { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 60px; text-align: center; font-size: 1rem; margin: 20px 0; outline: none; }
-        .modal-content input:focus { border-color: #f5a623; }
+        .modal-content h2 { font-size: 1.8rem; color: #2c6b7c; margin-bottom: 16px; }
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d4e4e9;
+            border-radius: 60px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 20px 0;
+            outline: none;
+        }
+        .modal-content input:focus { border-color: #ffb74d; }
         .modal-btn {
             padding: 14px;
             border-radius: 60px;
@@ -147,7 +240,7 @@
         .modal-btn:active { transform: translateY(2px); }
         .room-list { max-height: 280px; overflow-y: auto; margin: 16px 0; }
         .room-item {
-            background: #f8f9fc;
+            background: #f8fbfd;
             padding: 14px;
             border-radius: 40px;
             margin-bottom: 10px;
@@ -155,25 +248,30 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2edf2;
         }
-        .room-item:hover { background: #eef2f5; }
+        .room-item:hover { background: #eef2f5; transform: scale(1.01); }
         .waiting-area { padding: 60px 32px; text-align: center; background: white; }
-        .spinner { width: 50px; height: 50px; border: 4px solid #eef2f5; border-top-color: #f5a623; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #e2edf2; border-top-color: #ff9800; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .waiting-text { font-size: 1.2rem; color: #2c6b7c; margin-bottom: 8px; }
         
+        /* Countdown Overlay */
         .countdown-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.95);
             display: flex; justify-content: center; align-items: center; z-index: 2000; flex-direction: column;
         }
-        .countdown-number { font-size: 9rem; font-weight: 800; color: #f5a623; text-shadow: 0 0 30px rgba(245,166,35,0.5); animation: pulse 0.4s ease; }
-        .countdown-text { font-size: 2rem; color: white; margin-top: 24px; letter-spacing: 2px; }
+        .countdown-number { font-size: 9rem; font-weight: 800; color: #ff9800; text-shadow: 0 0 20px rgba(255,152,0,0.3); animation: pulse 0.4s ease; }
+        .countdown-text { font-size: 2rem; color: #2c6b7c; margin-top: 24px; letter-spacing: 2px; }
         @keyframes pulse { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         
+        /* Ergebnis Popup */
         .result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
             display: flex; justify-content: center; align-items: center; z-index: 2000;
         }
         .result-card {
@@ -187,22 +285,24 @@
         .result-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
         .result-score { font-size: 1.4rem; color: #2c6b7c; margin: 20px 0; font-weight: 600; }
         .result-btn {
-            background: #f5a623; border: none; border-radius: 60px; padding: 14px 36px;
+            background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+            border: none; border-radius: 60px; padding: 14px 36px;
             font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer;
-            box-shadow: 0 5px 0 #b4621a; transform: translateY(-2px);
+            box-shadow: 0 5px 0 #e65100; transform: translateY(-2px);
         }
-        .result-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b4621a; }
+        .result-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #e65100; }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        @keyframes correctFlash { 0% { background: #f8f9fc; } 50% { background: #d4edda; transform: scale(1.01); } 100% { background: #f8f9fc; } }
-        @keyframes wrongShake { 0%,100% { transform: translateX(0); background: #f8f9fc; } 25% { transform: translateX(5px); background: #ffe0e0; } 75% { transform: translateX(-5px); background: #ffe0e0; } }
+        /* Animationen */
+        @keyframes correctFlash { 0% { background: #f0f7fa; } 50% { background: #c8e6c9; transform: scale(1.01); } 100% { background: #f0f7fa; } }
+        @keyframes wrongShake { 0%,100% { transform: translateX(0); background: #f0f7fa; } 25% { transform: translateX(5px); background: #ffcdd2; } 75% { transform: translateX(-5px); background: #ffcdd2; } }
         .correct-animation { animation: correctFlash 0.25s ease; }
         .wrong-animation { animation: wrongShake 0.25s ease; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         
-        footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 20px; }
+        footer { text-align: center; font-size: 0.7rem; color: #8ba0aa; margin-top: 20px; }
         .cleanup-notice { font-size: 0.7rem; color: #8ba0aa; margin-top: 12px; }
-        .hidden { display: none !important; }
+        .host-badge { background: #ffb74d; color: white; font-size: 0.65rem; padding: 2px 10px; border-radius: 20px; margin-left: 8px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -212,10 +312,10 @@
         <div class="modal-content">
             <h2>⚔️ PVP DUEL</h2>
             <input type="text" id="playerNameInput" maxlength="20" placeholder="Your Name" autocomplete="off">
-            <button id="createRoomBtn" class="modal-btn" style="background:#f5a623; color:white; box-shadow:0 4px 0 #b4621a;">🏠 CREATE ROOM</button>
-            <button id="showRoomsBtn" class="modal-btn" style="background:#2c6b7c; color:white; box-shadow:0 4px 0 #15424f;">📋 SHOW ROOMS</button>
+            <button id="createRoomBtn" class="modal-btn" style="background:linear-gradient(135deg,#ffb74d,#ff9800); color:white; box-shadow:0 4px 0 #e65100;">🏠 CREATE ROOM</button>
+            <button id="showRoomsBtn" class="modal-btn" style="background:#2c6b7c; color:white; box-shadow:0 4px 0 #1e5a6a;">📋 SHOW ROOMS</button>
             <button id="testModeBtn" class="modal-btn" style="background:#e67e22; color:white; box-shadow:0 4px 0 #b45f1b;">🤖 TEST MODE (VS BOT)</button>
-            <button id="backToMenuBtn" class="modal-btn" style="background:#e9ecef; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">🏠 BACK</button>
+            <button id="backToMenuBtn" class="modal-btn" style="background:#eef2f5; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">🏠 BACK</button>
         </div>
     </div>
 
@@ -224,8 +324,8 @@
         <div class="modal-content">
             <h2>📋 AVAILABLE ROOMS</h2>
             <div id="roomList" class="room-list"><div style="text-align:center; padding:20px;">Loading...</div></div>
-            <button id="refreshRooms" class="modal-btn" style="background:#e9ecef; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">🔄 REFRESH</button>
-            <button id="closeRooms" class="modal-btn" style="background:#e9ecef; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">BACK</button>
+            <button id="refreshRooms" class="modal-btn" style="background:#eef2f5; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">🔄 REFRESH</button>
+            <button id="closeRooms" class="modal-btn" style="background:#eef2f5; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">BACK</button>
             <div class="cleanup-notice">⚠️ Rooms are only deleted when the host goes offline</div>
         </div>
     </div>
@@ -262,7 +362,7 @@
                 </div>
             </div>
             <div class="room-code-box">📌 Room Code: <span class="room-code" id="displayRoomCode">---</span></div>
-            <div class="cleanup-notice" id="cleanupLobbyNotice">⚠️ Room will be deleted if host goes offline</div>
+            <div class="cleanup-notice">⚠️ Room will be deleted if host goes offline</div>
             <button id="readyButton" class="ready-btn">✅ READY</button>
             <button id="cancelLobbyBtn" class="btn-action">🏠 LEAVE</button>
         </div>
@@ -277,7 +377,7 @@
             </div>
             <div class="opponent-bar">
                 <div><span class="vs-badge">VS</span><span id="opponentNameGame">Opponent</span></div>
-                <div style="font-weight:800; color:#e67e22; font-size:1.3rem;" id="opponentScoreGame">0</div>
+                <div style="font-weight:800; color:#ff9800; font-size:1.3rem;" id="opponentScoreGame">0</div>
             </div>
             <div class="question-area">
                 <div class="equation" id="eqBlock"><div class="equation-text" id="questionText">8 + 3 = ?</div></div>
@@ -629,7 +729,6 @@
             isHost: false
         });
         
-        // Wichtig: Alle Modals schließen und Lobby anzeigen
         document.getElementById('mainMenu').style.display = 'none';
         document.getElementById('roomsModal').style.display = 'none';
         document.getElementById('waitingForPlayer').style.display = 'none';
@@ -693,7 +792,7 @@
                         const lastActive = host?.lastActive || host?.joinedAt || now;
                         const isHostActive = (now - lastActive) < INACTIVE_TIMEOUT;
                         if(isHostActive) {
-                            html += `<div class="room-item" onclick="joinRoomFromList('${code}')"><div><span class="room-code">📌 ${code}</span><br><small>${playerCount}/2 players</small></div><button style="background:#f5a623; border:none; padding:6px 20px; border-radius:40px; color:white; font-weight:600; cursor:pointer; box-shadow:0 3px 0 #b4621a; transform:translateY(-1px);">JOIN</button></div>`;
+                            html += `<div class="room-item" onclick="joinRoomFromList('${code}')"><div><span class="room-code">📌 ${code}</span><br><small>${playerCount}/2 players</small></div><button style="background:linear-gradient(135deg,#ffb74d,#ff9800); border:none; padding:6px 20px; border-radius:40px; color:white; font-weight:600; cursor:pointer; box-shadow:0 3px 0 #e65100; transform:translateY(-1px);">JOIN</button></div>`;
                         } else {
                             db.ref(`pvp_rooms/${code}`).remove();
                         }
