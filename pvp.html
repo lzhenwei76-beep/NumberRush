@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Number Rush • PvP</title>
+    <title>Number Rush • PVP Mode</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <style>
@@ -63,9 +63,6 @@
         .waiting-area { padding: 50px 20px; text-align: center; }
         .spinner { width: 40px; height: 40px; border: 3px solid #eef2f5; border-top-color: #f5a623; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .language-selector { display: flex; justify-content: center; gap: 12px; margin: 16px 0; }
-        .lang-btn { background: #e9ecef; border: none; border-radius: 40px; padding: 6px 16px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-        .lang-btn.active { background: #f5a623; color: white; }
         .countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 2000; flex-direction: column; }
         .countdown-number { font-size: 8rem; font-weight: 800; color: #f5a623; animation: pulse 0.5s ease; }
         .countdown-text { font-size: 2rem; color: white; margin-top: 20px; }
@@ -90,160 +87,89 @@
 </head>
 <body>
 <div class="container">
-    <!-- Hauptmenü -->
+    <!-- Main Menu -->
     <div id="mainMenu" class="modal" style="display: flex;">
         <div class="modal-content">
-            <h2 id="pvpTitle">⚔️ PVP-DUELL</h2>
-            <input type="text" id="playerNameInput" maxlength="20" placeholder="Dein Name">
-            <button id="createRoomBtn" class="modal-btn btn-primary" id="createBtnText">🏠 RAUM ERSTELLEN</button>
-            <button id="showRoomsBtn" class="modal-btn btn-primary" id="roomsBtnText">📋 RÄUME ANZEIGEN</button>
-            <button id="testModeBtn" class="modal-btn btn-primary" id="testBtnText">🤖 TEST-MODUS</button>
-            <button id="backToMenuBtn" class="modal-btn btn-secondary" id="backBtnText">🏠 ZURÜCK</button>
+            <h2>⚔️ PVP DUEL</h2>
+            <input type="text" id="playerNameInput" maxlength="20" placeholder="Your Name">
+            <button id="createRoomBtn" class="modal-btn btn-primary">🏠 CREATE ROOM</button>
+            <button id="showRoomsBtn" class="modal-btn btn-primary" style="background:#2c6b7c; box-shadow:0 3px 0 #15424f;">📋 SHOW ROOMS</button>
+            <button id="testModeBtn" class="modal-btn btn-primary" style="background:#e67e22; box-shadow:0 3px 0 #b45f1b;">🤖 TEST MODE (VS BOT)</button>
+            <button id="backToMenuBtn" class="modal-btn btn-secondary">🏠 BACK</button>
         </div>
     </div>
 
-    <!-- Raumliste -->
+    <!-- Room List -->
     <div id="roomsModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <h2 id="roomsTitle">📋 VERFÜGBARE RÄUME</h2>
-            <div id="roomList" class="room-list"><div style="text-align:center;" id="loadingRoomsText">Lade...</div></div>
-            <button id="refreshRooms" class="modal-btn btn-secondary" id="refreshBtnText">🔄 AKTUALISIEREN</button>
-            <button id="closeRooms" class="modal-btn btn-secondary" id="closeRoomsBtnText">ZURÜCK</button>
-            <div class="cleanup-notice" id="cleanupNotice">⚠️ Inaktive Räume werden automatisch gelöscht</div>
+            <h2>📋 AVAILABLE ROOMS</h2>
+            <div id="roomList" class="room-list"><div style="text-align:center;">Loading...</div></div>
+            <button id="refreshRooms" class="modal-btn btn-secondary">🔄 REFRESH</button>
+            <button id="closeRooms" class="modal-btn btn-secondary">BACK</button>
+            <div class="cleanup-notice">⚠️ Inactive rooms are automatically deleted</div>
         </div>
     </div>
 
-    <!-- WARTEN -->
+    <!-- Waiting -->
     <div id="waitingForPlayer" class="card" style="display: none;">
         <div class="waiting-area">
             <div class="spinner"></div>
-            <div class="waiting-text" id="waitingText">🔍 Warte auf Gegner...</div>
-            <div class="room-code-box"><span id="roomCodeLabel">📌 Raum-Code:</span> <span class="room-code" id="waitingRoomCode">---</span></div>
-            <button id="cancelWaitingBtn" class="btn-action" id="cancelWaitBtnText">ABBRECHEN</button>
+            <div class="waiting-text">🔍 Waiting for opponent...</div>
+            <div class="room-code-box">📌 Room Code: <span class="room-code" id="waitingRoomCode">---</span></div>
+            <button id="cancelWaitingBtn" class="btn-action">CANCEL</button>
         </div>
     </div>
 
-    <!-- LOBBY -->
+    <!-- Lobby -->
     <div id="lobbyScreen" class="card" style="display: none;">
         <div class="header">
-            <div class="stat"><div class="stat-label" id="roomLabel">RAUM</div><div class="stat-value" id="lobbyRoomCode">---</div></div>
-            <div class="stat"><div class="stat-label" id="playersLabel">SPIELER</div><div class="stat-value" id="playerCount">1/2</div></div>
+            <div class="stat"><div class="stat-label">ROOM</div><div class="stat-value" id="lobbyRoomCode">---</div></div>
+            <div class="stat"><div class="stat-label">PLAYERS</div><div class="stat-value" id="playerCount">1/2</div></div>
         </div>
         <div class="lobby-container">
             <div class="players-row">
                 <div class="player-card" id="player1Card">
                     <div class="player-avatar">👤</div>
-                    <div class="player-name" id="player1Name">Du</div>
-                    <div class="player-status status-waiting" id="player1Status">wartet</div>
+                    <div class="player-name" id="player1Name">You</div>
+                    <div class="player-status status-waiting" id="player1Status">waiting</div>
                 </div>
                 <div class="vs-divider">VS</div>
                 <div class="player-card" id="player2Card">
                     <div class="player-avatar">❓</div>
-                    <div class="player-name" id="player2Name">Wird geladen...</div>
-                    <div class="player-status status-waiting" id="player2Status">wartet</div>
+                    <div class="player-name" id="player2Name">Waiting...</div>
+                    <div class="player-status status-waiting" id="player2Status">waiting</div>
                 </div>
             </div>
-            <div class="room-code-box"><span id="roomCodeLobbyLabel">📌 Raum-Code:</span> <span class="room-code" id="displayRoomCode">---</span></div>
-            <button id="readyButton" class="ready-btn" id="readyBtnText">✅ BEREIT</button>
-            <button id="cancelLobbyBtn" class="btn-action" id="leaveBtnText">🏠 VERLASSEN</button>
+            <div class="room-code-box">📌 Room Code: <span class="room-code" id="displayRoomCode">---</span></div>
+            <button id="readyButton" class="ready-btn">✅ READY</button>
+            <button id="cancelLobbyBtn" class="btn-action">🏠 LEAVE</button>
         </div>
     </div>
 
-    <!-- Spiel -->
+    <!-- Game -->
     <div id="gameScreen" style="display: none;">
         <div class="card">
             <div class="header">
-                <div class="stat"><div class="stat-label" id="myScoreLabel">DEINE PUNKTE</div><div class="stat-value" id="myScore">0</div></div>
-                <div class="stat"><div class="stat-label" id="timeGameLabel">ZEIT</div><div class="stat-value" id="timerVal">30</div></div>
+                <div class="stat"><div class="stat-label">YOUR SCORE</div><div class="stat-value" id="myScore">0</div></div>
+                <div class="stat"><div class="stat-label">TIME</div><div class="stat-value" id="timerVal">30</div></div>
             </div>
             <div class="opponent-bar">
-                <div><span class="vs-badge">VS</span><span id="opponentNameGame">Gegner</span></div>
+                <div><span class="vs-badge">VS</span><span id="opponentNameGame">Opponent</span></div>
                 <div style="font-weight:800; color:#e67e22;" id="opponentScoreGame">0</div>
             </div>
             <div class="question-area">
                 <div class="equation" id="eqBlock"><div class="equation-text" id="questionText">8 + 3 = ?</div></div>
                 <div class="input-area"><input type="number" id="answerInput" class="answer-input" placeholder="?" inputmode="numeric"><button id="submitBtn" class="submit-btn">✓</button></div>
-                <div class="feedback" id="feedbackMsg">👆 Tippe die Lösung</div>
+                <div class="feedback" id="feedbackMsg">👆 Type the answer</div>
             </div>
-            <div class="streak-area"><div>🔥 <span id="streakGameLabel">SERIE</span> <span id="streakVal" class="streak-value">0</span></div><div>🏆 <span id="bestGameLabel">BESTE</span> <span id="bestStreakVal" class="streak-value">0</span></div></div>
+            <div class="streak-area"><div>🔥 STREAK <span id="streakVal" class="streak-value">0</span></div><div>🏆 BEST <span id="bestStreakVal" class="streak-value">0</span></div></div>
         </div>
-        <button id="exitGameBtn" class="btn-action" id="exitGameBtnText">🏠 MENÜ</button>
+        <button id="exitGameBtn" class="btn-action" style="margin-top:12px;">🏠 MENU</button>
     </div>
-    <div class="language-selector">
-        <button class="lang-btn" data-lang="de">🇩🇪 Deutsch</button>
-        <button class="lang-btn" data-lang="en">🇬🇧 English</button>
-        <button class="lang-btn" data-lang="tr">🇹🇷 Türkçe</button>
-    </div>
-    <footer id="footer">⚡ 30 Sekunden • 10 Punkte pro richtige Antwort</footer>
+    <footer>⚡ 30 seconds • 10 points per correct answer • No time bonus</footer>
 </div>
 
 <script>
-    // ========== SPRACHEN ==========
-    const translations = {
-        de: {
-            pvp_title: "⚔️ PVP-DUELL", create_room: "🏠 RAUM ERSTELLEN", show_rooms: "📋 RÄUME ANZEIGEN", test_mode: "🤖 TEST-MODUS", back: "🏠 ZURÜCK",
-            rooms_title: "📋 VERFÜGBARE RÄUME", refresh: "🔄 AKTUALISIEREN", close: "ZURÜCK", cleanup: "⚠️ Inaktive Räume werden automatisch gelöscht",
-            waiting: "🔍 Warte auf Gegner...", room_code: "📌 Raum-Code:", cancel: "ABBRECHEN", room: "RAUM", players: "SPIELER", ready: "✅ BEREIT", leave: "🏠 VERLASSEN",
-            my_score: "DEINE PUNKTE", time: "ZEIT", streak: "SERIE", best: "BESTE", menu: "🏠 MENÜ", footer: "⚡ 30 Sekunden • 10 Punkte pro richtige Antwort",
-            waiting_status: "wartet", ready_status: "bereit", loading: "Lade..."
-        },
-        en: {
-            pvp_title: "⚔️ PVP DUEL", create_room: "🏠 CREATE ROOM", show_rooms: "📋 SHOW ROOMS", test_mode: "🤖 TEST MODE", back: "🏠 BACK",
-            rooms_title: "📋 AVAILABLE ROOMS", refresh: "🔄 REFRESH", close: "BACK", cleanup: "⚠️ Inactive rooms are automatically deleted",
-            waiting: "🔍 Waiting for opponent...", room_code: "📌 Room Code:", cancel: "CANCEL", room: "ROOM", players: "PLAYERS", ready: "✅ READY", leave: "🏠 LEAVE",
-            my_score: "YOUR SCORE", time: "TIME", streak: "STREAK", best: "BEST", menu: "🏠 MENU", footer: "⚡ 30 seconds • 10 points per correct answer",
-            waiting_status: "waiting", ready_status: "ready", loading: "Loading..."
-        },
-        tr: {
-            pvp_title: "⚔️ PVP DÜELLO", create_room: "🏠 ODA OLUŞTUR", show_rooms: "📋 ODALARI GÖSTER", test_mode: "🤖 TEST MODU", back: "🏠 GERİ",
-            rooms_title: "📋 MEVCUT ODALAR", refresh: "🔄 YENİLE", close: "GERİ", cleanup: "⚠️ Aktif olmayan odalar otomatik silinir",
-            waiting: "🔍 Rakip bekleniyor...", room_code: "📌 Oda Kodu:", cancel: "İPTAL", room: "ODA", players: "OYUNCULAR", ready: "✅ HAZIR", leave: "🏠 AYRIL",
-            my_score: "PUANIN", time: "ZAMAN", streak: "SERİ", best: "EN İYİ", menu: "🏠 MENÜ", footer: "⚡ 30 saniye • Doğru cevap 10 puan",
-            waiting_status: "bekliyor", ready_status: "hazır", loading: "Yükleniyor..."
-        }
-    };
-    
-    let currentLang = 'de';
-    function updateLanguage() {
-        const t = translations[currentLang];
-        document.getElementById('pvpTitle').innerText = t.pvp_title;
-        document.getElementById('createRoomBtn').innerText = t.create_room;
-        document.getElementById('showRoomsBtn').innerText = t.show_rooms;
-        document.getElementById('testModeBtn').innerText = t.test_mode;
-        document.getElementById('backToMenuBtn').innerText = t.back;
-        document.getElementById('roomsTitle').innerText = t.rooms_title;
-        document.getElementById('refreshRooms').innerText = t.refresh;
-        document.getElementById('closeRooms').innerText = t.close;
-        document.getElementById('cleanupNotice').innerText = t.cleanup;
-        document.getElementById('waitingText').innerText = t.waiting;
-        document.getElementById('roomCodeLabel').innerText = t.room_code;
-        document.getElementById('cancelWaitBtnText').innerText = t.cancel;
-        document.getElementById('roomLabel').innerText = t.room;
-        document.getElementById('playersLabel').innerText = t.players;
-        document.getElementById('readyBtnText').innerText = t.ready;
-        document.getElementById('leaveBtnText').innerText = t.leave;
-        document.getElementById('myScoreLabel').innerText = t.my_score;
-        document.getElementById('timeGameLabel').innerText = t.time;
-        document.getElementById('streakGameLabel').innerText = t.streak;
-        document.getElementById('bestGameLabel').innerText = t.best;
-        document.getElementById('exitGameBtnText').innerText = t.menu;
-        document.getElementById('footer').innerText = t.footer;
-        document.getElementById('roomCodeLobbyLabel').innerText = t.room_code;
-        
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            if(btn.dataset.lang === currentLang) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-    }
-    
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentLang = btn.dataset.lang;
-            updateLanguage();
-        });
-    });
-    
-    // Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyA6iOEmuLeLKdNidLgEqISGSW2XWRHLhjQ",
         authDomain: "mathnumberrush.firebaseapp.com",
@@ -255,14 +181,17 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
+
+    const INACTIVE_TIMEOUT = 30000;
+    let heartbeatInterval = null, roomCleanupTimeout = null;
+
     const START_TIME = 30, POINTS = 10;
     let score = 0, timeLeft = START_TIME, gameActive = false, timerInt = null, streak = 0, bestStreak = 0;
     let currentQ = { text: "", answer: 0 };
     let playerId = null, roomId = null, opponentId = null, playerName = "";
     let isReady = false, gameStarted = false, gameEnded = false, isTestMode = false, botInterval = null;
     let countdownInterval = null;
-    
+
     const ops = ['+', '−', '×'];
     function random(m,n){ return Math.floor(Math.random()*(n-m+1))+m; }
     function getDifficulty(){ if(score<70)return 1; if(score<180)return 2; if(score<350)return 3; if(score<550)return 4; return 5; }
@@ -276,7 +205,7 @@
         return { text:`${a} ${sym} ${b}`, answer:ans };
     }
     function updateUI(){ document.getElementById('questionText').innerHTML = currentQ.text + " = ?"; }
-    
+
     function startTimer(){
         if(timerInt) clearInterval(timerInt);
         timerInt = setInterval(() => {
@@ -285,11 +214,11 @@
             else{ timeLeft--; document.getElementById('timerVal').innerHTML=timeLeft; }
         }, 1000);
     }
-    
+
     function showCountdown(callback) {
         const overlay = document.createElement('div');
         overlay.className = 'countdown-overlay';
-        overlay.innerHTML = `<div class="countdown-number" id="countdownNumber">3</div><div class="countdown-text">${currentLang==='de'?'Bereit?':currentLang==='en'?'Ready?':'Hazır?'}</div>`;
+        overlay.innerHTML = `<div class="countdown-number" id="countdownNumber">3</div><div class="countdown-text">Ready?</div>`;
         document.body.appendChild(overlay);
         let count = 3;
         const countdownElement = document.getElementById('countdownNumber');
@@ -300,19 +229,19 @@
             else { clearInterval(countdownInterval); overlay.remove(); if(callback) callback(); }
         }, 1000);
     }
-    
+
     function showResult(isWin, isDraw, myScore, oppScore) {
         const overlay = document.createElement('div');
         overlay.className = 'result-overlay';
         let icon, title;
-        if(isDraw) { icon = "🤝"; title = currentLang==='de'?"UNENTSCHIEDEN!":currentLang==='en'?"DRAW!":"BERABERE!"; }
-        else if(isWin) { icon = "🏆"; title = currentLang==='de'?"DU HAST GEWONNEN!":currentLang==='en'?"YOU WIN!":"KAZANDIN!"; }
-        else { icon = "😔"; title = currentLang==='de'?"DU HAST VERLOREN!":currentLang==='en'?"YOU LOSE!":"KAYBETTİN!"; }
-        overlay.innerHTML = `<div class="result-card ${isDraw?'draw':isWin?'win':'lose'}"><div class="result-icon">${icon}</div><div class="result-title">${title}</div><div class="result-score">${myScore} : ${oppScore}</div><button class="result-btn" id="resultCloseBtn">${currentLang==='de'?'ZURÜCK ZUM MENÜ':currentLang==='en'?'BACK TO MENU':'MENÜYE DÖN'}</button></div>`;
+        if(isDraw) { icon = "🤝"; title = "DRAW!"; }
+        else if(isWin) { icon = "🏆"; title = "YOU WIN!"; }
+        else { icon = "😔"; title = "YOU LOSE!"; }
+        overlay.innerHTML = `<div class="result-card ${isDraw?'draw':isWin?'win':'lose'}"><div class="result-icon">${icon}</div><div class="result-title">${title}</div><div class="result-score">${myScore} : ${oppScore}</div><button class="result-btn" id="resultCloseBtn">BACK TO MENU</button></div>`;
         document.body.appendChild(overlay);
-        document.getElementById('resultCloseBtn').onclick = () => { overlay.remove(); window.location.href = `index.html?lang=${currentLang}`; };
+        document.getElementById('resultCloseBtn').onclick = () => { overlay.remove(); window.location.href = 'index.html'; };
     }
-    
+
     async function endGame(){
         if(gameEnded) return;
         gameEnded = true; gameActive = false;
@@ -321,7 +250,7 @@
         document.getElementById('answerInput').disabled = true; document.getElementById('submitBtn').disabled = true;
         if(isTestMode){
             if(score > 0){
-                let name = prompt(`${currentLang==='de'?'Punkte:':'Score:'} ${score}! ${currentLang==='de'?'Dein Name':'Your name'}:`, playerName);
+                let name = prompt(`🎉 GAME OVER! ${score} points!\nEnter your name for the leaderboard:`, playerName);
                 if(name?.trim()) db.ref('scores').push({ name: name.trim().substring(0,20), score: score, timestamp: Date.now() });
             }
             showResult(score > 0, false, score, 0);
@@ -349,30 +278,30 @@
             }
         }
     }
-    
+
     function correctAnswer(){
         score += POINTS; document.getElementById('myScore').innerHTML = score;
         streak++; document.getElementById('streakVal').innerHTML = streak;
         if(streak > bestStreak){ bestStreak = streak; document.getElementById('bestStreakVal').innerHTML = bestStreak; }
-        document.getElementById('feedbackMsg').innerHTML = currentLang==='de'?"✓ RICHTIG! +10":currentLang==='en'?"✓ CORRECT! +10":"✓ DOĞRU! +10";
+        document.getElementById('feedbackMsg').innerHTML = "✓ CORRECT! +10";
         document.getElementById('eqBlock').classList.add('correct-animation');
         setTimeout(()=>document.getElementById('eqBlock').classList.remove('correct-animation'),250);
         if(roomId && playerId && db && gameStarted && !isTestMode) db.ref(`pvp_rooms/${roomId}/players/${playerId}/score`).set(score);
         currentQ = newQ(); updateUI(); document.getElementById('answerInput').value = ''; document.getElementById('answerInput').focus();
-        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = currentLang==='de'?"⚡ Weiter!":currentLang==='en'?"⚡ Keep going!":"⚡ Devam!"; },800);
+        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = "⚡ Keep going!"; },800);
     }
-    
+
     function wrongAnswer(){
         streak = 0; document.getElementById('streakVal').innerHTML = streak;
-        document.getElementById('feedbackMsg').innerHTML = `❌ ${currentLang==='de'?'Lösung':currentLang==='en'?'Solution':'Çözüm'}: ${currentQ.answer}`;
+        document.getElementById('feedbackMsg').innerHTML = `❌ Wrong! Answer: ${currentQ.answer}`;
         document.getElementById('eqBlock').classList.add('wrong-animation');
         setTimeout(()=>document.getElementById('eqBlock').classList.remove('wrong-animation'),250);
         currentQ = newQ(); updateUI(); document.getElementById('answerInput').value = ''; document.getElementById('answerInput').focus();
-        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = currentLang==='de'?"💪 Nächste!":currentLang==='en'?"💪 Next!":"💪 Sıradaki!"; },800);
+        setTimeout(()=>{ if(gameActive) document.getElementById('feedbackMsg').innerHTML = "💪 Next one!"; },800);
     }
-    
+
     function checkAnswer(){ if(!gameActive) return; let val=document.getElementById('answerInput').value.trim(); if(val==="") return; let num=Number(val); if(isNaN(num)){ document.getElementById('answerInput').value=''; return; } if(num===currentQ.answer) correctAnswer(); else wrongAnswer(); }
-    
+
     function startGameLogic(opponentName){
         gameStarted = true; gameActive = true; score = 0; timeLeft = START_TIME; streak = 0; bestStreak = 0;
         document.getElementById('myScore').innerHTML = "0"; document.getElementById('timerVal').innerHTML = timeLeft;
@@ -380,19 +309,19 @@
         document.getElementById('opponentNameGame').innerHTML = opponentName; document.getElementById('opponentScoreGame').innerHTML = "0";
         document.getElementById('answerInput').disabled = false; document.getElementById('submitBtn').disabled = false;
         document.getElementById('answerInput').value = ''; currentQ = newQ(); updateUI(); startTimer();
-        document.getElementById('feedbackMsg').innerHTML = currentLang==='de'?"⚔️ KAMPF BEGINNT! 30 Sekunden!":currentLang==='en'?"⚔️ FIGHT START! 30 seconds!":"⚔️ SAVAŞ BAŞLADI! 30 saniye!";
+        document.getElementById('feedbackMsg').innerHTML = "⚔️ FIGHT START! 30 seconds!";
         document.getElementById('answerInput').focus();
         if(!isTestMode && opponentId){
             db.ref(`pvp_rooms/${roomId}/players/${opponentId}/score`).on('value', (snap) => { document.getElementById('opponentScoreGame').innerHTML = snap.val() || 0; });
             db.ref(`pvp_rooms/${roomId}/players/${opponentId}/finished`).on('value', (snap) => { if(snap.val() === true && !gameEnded) endGame(); });
         }
     }
-    
+
     function startCountdownAndGame(opponentName) { showCountdown(() => { startGameLogic(opponentName); }); }
-    
+
     function startTestMode(){
         isTestMode = true; playerName = document.getElementById('playerNameInput').value.trim();
-        if(!playerName){ alert(currentLang==='de'?"Bitte Namen eingeben":currentLang==='en'?"Please enter name":"Lütfen isim girin"); return; }
+        if(!playerName){ alert("Please enter your name"); return; }
         document.getElementById('mainMenu').style.display = 'none'; document.getElementById('gameScreen').style.display = 'block';
         document.getElementById('opponentNameGame').innerHTML = "🤖 BOT";
         showCountdown(() => {
@@ -400,25 +329,175 @@
             botInterval = setInterval(() => { if(gameActive && !gameEnded){ let botScore = parseInt(document.getElementById('opponentScoreGame').innerHTML) || 0; document.getElementById('opponentScoreGame').innerHTML = botScore + random(5, 15); } }, random(1500, 3000));
         });
     }
-    
-    // Weitere Funktionen (createRoom, joinRoom, etc.) bleiben gleich, nur mit Sprachunterstützung
-    // Aus Platzgründen hier gekürzt, aber im vollständigen Code enthalten
-    // ... (Rest des PvP-Codes wie zuvor, mit Sprache unterstützung)
-    
-    // Sprache aus URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const langParam = urlParams.get('lang');
-    if(langParam && translations[langParam]) currentLang = langParam;
-    updateLanguage();
-    
-    document.getElementById('backToMenuBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
-    document.getElementById('cancelWaitingBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
-    document.getElementById('cancelLobbyBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
-    document.getElementById('exitGameBtn').onclick = () => window.location.href = `index.html?lang=${currentLang}`;
+
+    function startHeartbeat() {
+        if(heartbeatInterval) clearInterval(heartbeatInterval);
+        heartbeatInterval = setInterval(() => { if(roomId && playerId && db && !gameStarted && !gameEnded) { db.ref(`pvp_rooms/${roomId}/players/${playerId}/lastActive`).set(Date.now()); } }, 5000);
+    }
+    function stopHeartbeat() { if(heartbeatInterval) clearInterval(heartbeatInterval); }
+    function startRoomCleanupTimer() { if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout); roomCleanupTimeout = setTimeout(() => { if(roomId && !gameStarted && !gameEnded) cleanupRoom(); }, INACTIVE_TIMEOUT); }
+    function resetRoomCleanupTimer() { if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout); startRoomCleanupTimer(); }
+    async function cleanupRoom() { if(roomId && db && !gameStarted && !gameEnded) { await db.ref(`pvp_rooms/${roomId}`).remove(); alert("⚠️ Room closed due to inactivity."); window.location.href = 'index.html'; } }
+
+    function setupLobbyListeners(){
+        const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
+        roomRef.on('value', (snapshot) => {
+            const players = snapshot.val();
+            if(!players) return;
+            const playerIds = Object.keys(players);
+            const playerCount = playerIds.length;
+            document.getElementById('playerCount').innerHTML = `${playerCount}/2`;
+            if(playerIds[0]){
+                const p1 = players[playerIds[0]];
+                document.getElementById('player1Name').innerHTML = p1.name;
+                const p1Ready = p1.ready || false;
+                document.getElementById('player1Status').innerHTML = p1Ready ? "✅ ready" : "⏳ waiting";
+                document.getElementById('player1Status').className = p1Ready ? "player-status status-ready" : "player-status status-waiting";
+                document.getElementById('player1Card').className = p1Ready ? "player-card ready" : "player-card";
+            }
+            if(playerIds[1]){
+                const p2 = players[playerIds[1]];
+                document.getElementById('player2Name').innerHTML = p2.name;
+                const p2Ready = p2.ready || false;
+                document.getElementById('player2Status').innerHTML = p2Ready ? "✅ ready" : "⏳ waiting";
+                document.getElementById('player2Status').className = p2Ready ? "player-status status-ready" : "player-status status-waiting";
+                document.getElementById('player2Card').className = p2Ready ? "player-card ready" : "player-card";
+                opponentId = playerIds.find(id => id !== playerId);
+            } else {
+                document.getElementById('player2Name').innerHTML = "Waiting...";
+                document.getElementById('player2Status').innerHTML = "⏳ waiting";
+                document.getElementById('player2Card').className = "player-card";
+            }
+            if(playerCount === 2){
+                const p1Ready = players[playerIds[0]]?.ready || false;
+                const p2Ready = players[playerIds[1]]?.ready || false;
+                if(p1Ready && p2Ready && !gameStarted){
+                    const opponent = playerIds.find(id => id !== playerId);
+                    opponentId = opponent;
+                    const opponentName = players[opponent].name;
+                    document.getElementById('lobbyScreen').style.display = 'none';
+                    document.getElementById('gameScreen').style.display = 'block';
+                    startCountdownAndGame(opponentName);
+                }
+            }
+        });
+    }
+
+    async function createRoom(){
+        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
+        roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const now = Date.now();
+        await db.ref(`pvp_rooms/${roomId}`).set({
+            createdAt: now, creator: playerId,
+            players: { [playerId]: { name: playerName, score: 0, ready: false, finished: false, finalScore: 0, joinedAt: now, lastActive: now } }
+        });
+        document.getElementById('waitingRoomCode').innerHTML = roomId;
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('waitingForPlayer').style.display = 'block';
+        startHeartbeat(); startRoomCleanupTimer();
+        const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
+        const waitListener = roomRef.on('value', (snapshot) => {
+            const players = snapshot.val();
+            if(players && Object.keys(players).length === 2){
+                roomRef.off('value', waitListener);
+                if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
+                document.getElementById('waitingForPlayer').style.display = 'none';
+                document.getElementById('lobbyScreen').style.display = 'block';
+                document.getElementById('lobbyRoomCode').innerHTML = roomId;
+                document.getElementById('displayRoomCode').innerHTML = roomId;
+                document.getElementById('player1Name').innerHTML = playerName;
+                setupLobbyListeners();
+                startRoomCleanupTimer();
+            }
+        });
+        setTimeout(() => { if(!gameStarted && !gameEnded) { db.ref(`pvp_rooms/${roomId}`).remove(); if(document.getElementById('waitingForPlayer').style.display === 'block') { alert("⏰ No opponent found. Room closed."); window.location.href = 'index.html'; } } }, 60000);
+    }
+
+    async function joinRoom(roomCode){
+        playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
+        roomId = roomCode.toUpperCase();
+        const roomRef = db.ref(`pvp_rooms/${roomId}`);
+        const roomSnap = await roomRef.once('value');
+        const room = roomSnap.val();
+        if(!room){ alert("Room not found!"); return false; }
+        if(room.players && Object.keys(room.players).length >= 2){ alert("Room is full!"); return false; }
+        const now = Date.now();
+        await roomRef.child(`players/${playerId}`).set({ name: playerName, score: 0, ready: false, finished: false, finalScore: 0, joinedAt: now, lastActive: now });
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('lobbyScreen').style.display = 'block';
+        document.getElementById('lobbyRoomCode').innerHTML = roomId;
+        document.getElementById('displayRoomCode').innerHTML = roomId;
+        const players = room.players;
+        const player1Id = Object.keys(players)[0];
+        document.getElementById('player1Name').innerHTML = players[player1Id]?.name || "Player 1";
+        document.getElementById('player2Name').innerHTML = playerName;
+        startHeartbeat(); startRoomCleanupTimer(); setupLobbyListeners();
+        return true;
+    }
+
+    async function setReady(){
+        if(isReady) return;
+        isReady = true;
+        await db.ref(`pvp_rooms/${roomId}/players/${playerId}/ready`).set(true);
+        await db.ref(`pvp_rooms/${roomId}/players/${playerId}/lastActive`).set(Date.now());
+        const readyBtn = document.getElementById('readyButton');
+        readyBtn.innerHTML = "✅ READY";
+        readyBtn.classList.add('disabled');
+        readyBtn.disabled = true;
+        resetRoomCleanupTimer();
+    }
+
+    async function cancelGame(){
+        stopHeartbeat(); if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
+        if(roomId && playerId && db && !isTestMode){
+            await db.ref(`pvp_rooms/${roomId}/players/${playerId}`).remove();
+            const remaining = await db.ref(`pvp_rooms/${roomId}/players`).once('value');
+            if(!remaining.exists()) await db.ref(`pvp_rooms/${roomId}`).remove();
+        }
+        window.location.href = 'index.html';
+    }
+
+    function exitGame(){ if(timerInt) clearInterval(timerInt); if(botInterval) clearInterval(botInterval); cancelGame(); }
+
+    function loadRooms(){
+        db.ref('pvp_rooms').once('value', (snapshot) => {
+            const rooms = snapshot.val();
+            const container = document.getElementById('roomList');
+            if(!rooms || Object.keys(rooms).length === 0){ container.innerHTML = '<div style="text-align:center; padding:20px;">No active rooms</div>'; return; }
+            let html = ''; const now = Date.now();
+            for(let [code, room] of Object.entries(rooms)){
+                const playerCount = room.players ? Object.keys(room.players).length : 0;
+                if(playerCount < 2){
+                    const players = room.players;
+                    if(players) {
+                        const hostId = room.creator;
+                        const host = players[hostId];
+                        const lastActive = host?.lastActive || host?.joinedAt || now;
+                        const isHostActive = (now - lastActive) < INACTIVE_TIMEOUT;
+                        if(isHostActive || playerCount === 1) {
+                            html += `<div class="room-item" onclick="joinRoomFromList('${code}')"><div><span class="room-code">📌 ${code}</span><br><small>${playerCount}/2 players</small></div><button style="background:#f5a623; border:none; padding:6px 16px; border-radius:30px; color:white; cursor:pointer;">JOIN</button></div>`;
+                        } else { db.ref(`pvp_rooms/${code}`).remove(); }
+                    }
+                }
+            }
+            container.innerHTML = html || '<div style="text-align:center; padding:20px;">No available rooms</div>';
+        });
+    }
+
+    window.joinRoomFromList = async function(code){ const name = document.getElementById('playerNameInput').value.trim(); if(!name){ alert("Please enter your name"); return; } playerName = name; await joinRoom(code); };
+
+    document.getElementById('createRoomBtn').onclick = () => { const name = document.getElementById('playerNameInput').value.trim(); if(!name){ alert("Please enter your name"); return; } playerName = name; createRoom(); };
+    document.getElementById('showRoomsBtn').onclick = () => { const name = document.getElementById('playerNameInput').value.trim(); if(!name){ alert("Please enter your name"); return; } playerName = name; loadRooms(); document.getElementById('mainMenu').style.display = 'none'; document.getElementById('roomsModal').style.display = 'flex'; };
     document.getElementById('testModeBtn').onclick = startTestMode;
-    
-    // Hier müssten die restlichen PvP-Funktionen (createRoom, joinRoom, etc.) eingefügt werden
-    // Aus Platzgründen wird auf die vorherige Version verwiesen
+    document.getElementById('refreshRooms').onclick = loadRooms;
+    document.getElementById('closeRooms').onclick = () => { document.getElementById('roomsModal').style.display = 'none'; document.getElementById('mainMenu').style.display = 'flex'; };
+    document.getElementById('backToMenuBtn').onclick = () => window.location.href = 'index.html';
+    document.getElementById('readyButton').onclick = setReady;
+    document.getElementById('cancelLobbyBtn').onclick = cancelGame;
+    document.getElementById('cancelWaitingBtn').onclick = cancelGame;
+    document.getElementById('submitBtn').onclick = checkAnswer;
+    document.getElementById('exitGameBtn').onclick = exitGame;
+    document.getElementById('answerInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && gameActive) checkAnswer(); });
 </script>
 </body>
 </html>
