@@ -35,33 +35,9 @@
             transition: all 0.05s linear;
             transform: translateY(-2px);
         }
-        .btn:active {
-            transform: translateY(3px);
-        }
-        .btn-primary {
-            background: #f5a623;
-            color: white;
-            box-shadow: 0 5px 0 #b4621a;
-            padding: 14px 24px;
-            font-size: 1rem;
-        }
-        .btn-secondary {
-            background: #e9ecef;
-            color: #2c6b7c;
-            box-shadow: 0 4px 0 #cbd5e0;
-            padding: 12px 20px;
-            font-size: 0.9rem;
-        }
-        .btn-solo {
-            background: #2c6b7c;
-            color: white;
-            box-shadow: 0 5px 0 #15424f;
-        }
-        .btn-pvp {
-            background: #e67e22;
-            color: white;
-            box-shadow: 0 5px 0 #b45f1b;
-        }
+        .btn:active { transform: translateY(3px); }
+        .btn-primary { background: #f5a623; color: white; box-shadow: 0 5px 0 #b4621a; padding: 14px 24px; font-size: 1rem; }
+        .btn-secondary { background: #e9ecef; color: #2c6b7c; box-shadow: 0 4px 0 #cbd5e0; padding: 12px 20px; font-size: 0.9rem; }
         
         /* Lobby Spielerkarten */
         .lobby-container { padding: 32px 24px; background: white; text-align: center; }
@@ -76,11 +52,13 @@
             transition: all 0.2s;
         }
         .player-card.ready { border-color: #4caf50; background: #e8f5e9; }
+        .player-card.host { border-color: #f5a623; background: #fff8f0; }
         .player-avatar { font-size: 3.5rem; margin-bottom: 12px; }
         .player-name { font-size: 1.3rem; font-weight: 700; color: #2c6b7c; margin-bottom: 8px; }
         .player-status { font-size: 0.85rem; padding: 6px 16px; border-radius: 40px; display: inline-block; }
         .status-waiting { background: #e9ecef; color: #8ba0aa; }
         .status-ready { background: #4caf50; color: white; }
+        .status-host { background: #f5a623; color: white; }
         .vs-divider { font-size: 2rem; font-weight: 800; color: #e67e22; background: white; padding: 0 10px; }
         
         .room-code-box { background: #f8f9fc; border-radius: 60px; padding: 14px 24px; margin: 20px 0; display: inline-block; }
@@ -100,20 +78,9 @@
             transition: all 0.05s linear;
             margin-top: 20px;
         }
-        .ready-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #b4621a;
-        }
-        .ready-btn.disabled {
-            background: #8ba0aa;
-            box-shadow: 0 6px 0 #6b7f8a;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .ready-btn.ready-clicked {
-            background: #4caf50;
-            box-shadow: 0 6px 0 #2e7d32;
-        }
+        .ready-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #b4621a; }
+        .ready-btn.disabled { background: #8ba0aa; box-shadow: 0 6px 0 #6b7f8a; cursor: not-allowed; transform: none; }
+        .ready-btn.ready-clicked { background: #4caf50; box-shadow: 0 6px 0 #2e7d32; }
         
         .btn-action {
             background: #e9ecef;
@@ -129,61 +96,18 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 0 #cbd5e0;
         }
-        .btn-action:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #cbd5e0;
-        }
+        .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e0; }
         
         /* Fragebereich */
         .question-area { padding: 32px 24px; background: white; }
-        .equation {
-            background: #f8f9fc;
-            border-radius: 48px;
-            padding: 36px 20px;
-            text-align: center;
-            border: 1px solid #eef2f5;
-        }
+        .equation { background: #f8f9fc; border-radius: 48px; padding: 36px 20px; text-align: center; border: 1px solid #eef2f5; }
         .equation-text { font-size: 3rem; font-weight: 800; font-family: monospace; color: #2c6b7c; letter-spacing: 4px; }
         .input-area { display: flex; gap: 12px; margin: 28px 0; }
-        .answer-input {
-            flex: 1;
-            border: 2px solid #e2e8f0;
-            border-radius: 60px;
-            font-size: 1.6rem;
-            padding: 16px 24px;
-            text-align: center;
-            font-weight: 600;
-            font-family: monospace;
-            outline: none;
-            transition: all 0.2s;
-        }
+        .answer-input { flex: 1; border: 2px solid #e2e8f0; border-radius: 60px; font-size: 1.6rem; padding: 16px 24px; text-align: center; font-weight: 600; font-family: monospace; outline: none; }
         .answer-input:focus { border-color: #f5a623; box-shadow: 0 0 0 3px rgba(245,166,35,0.2); }
-        .submit-btn {
-            background: #f5a623;
-            border: none;
-            border-radius: 60px;
-            padding: 16px 32px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #b4621a;
-            transform: translateY(-2px);
-            transition: all 0.05s linear;
-        }
-        .submit-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #b4621a;
-        }
-        .feedback {
-            background: #f8f9fc;
-            border-radius: 40px;
-            padding: 14px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #5a7e8c;
-            margin: 16px 0;
-        }
+        .submit-btn { background: #f5a623; border: none; border-radius: 60px; padding: 16px 32px; font-size: 1.2rem; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 5px 0 #b4621a; transform: translateY(-2px); }
+        .submit-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b4621a; }
+        .feedback { background: #f8f9fc; border-radius: 40px; padding: 14px; text-align: center; font-size: 0.9rem; color: #5a7e8c; margin: 16px 0; }
         .streak-area { display: flex; justify-content: center; gap: 48px; padding: 16px 24px; border-top: 1px solid #eef2f5; background: white; }
         .streak-value { font-size: 1.4rem; font-weight: 800; color: #f5a623; }
         .streak-label { font-size: 0.7rem; color: #8ba0aa; text-transform: uppercase; letter-spacing: 1px; }
@@ -191,57 +115,15 @@
         .vs-badge { background: #e67e22; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; margin-right: 12px; }
         
         /* Modal */
-        .modal {
-            display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 48px;
-            padding: 40px 32px;
-            max-width: 380px;
-            width: 90%;
-            text-align: center;
-            animation: fadeInUp 0.3s ease;
-        }
+        .modal { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; border-radius: 48px; padding: 40px 32px; max-width: 380px; width: 90%; text-align: center; animation: fadeInUp 0.3s ease; }
         .modal-content h2 { font-size: 1.8rem; color: #1a4d5e; margin-bottom: 16px; }
-        .modal-content input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e2e8f0;
-            border-radius: 60px;
-            text-align: center;
-            font-size: 1rem;
-            margin: 20px 0;
-            outline: none;
-        }
+        .modal-content input { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 60px; text-align: center; font-size: 1rem; margin: 20px 0; outline: none; }
         .modal-content input:focus { border-color: #f5a623; }
-        .modal-btn {
-            padding: 14px;
-            border-radius: 60px;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            margin: 8px 0;
-            width: 100%;
-            transition: all 0.05s linear;
-            transform: translateY(-2px);
-        }
+        .modal-btn { padding: 14px; border-radius: 60px; font-size: 1rem; font-weight: 600; border: none; cursor: pointer; margin: 8px 0; width: 100%; transition: all 0.05s linear; transform: translateY(-2px); }
         .modal-btn:active { transform: translateY(2px); }
         .room-list { max-height: 280px; overflow-y: auto; margin: 16px 0; }
-        .room-item {
-            background: #f8f9fc;
-            padding: 14px;
-            border-radius: 40px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .room-item { background: #f8f9fc; padding: 14px; border-radius: 40px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .room-item:hover { background: #eef2f5; }
         .waiting-area { padding: 60px 32px; text-align: center; background: white; }
         .spinner { width: 50px; height: 50px; border: 4px solid #eef2f5; border-top-color: #f5a623; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
@@ -249,37 +131,21 @@
         .waiting-text { font-size: 1.2rem; color: #2c6b7c; margin-bottom: 8px; }
         
         /* Countdown Overlay */
-        .countdown-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
-            display: flex; justify-content: center; align-items: center; z-index: 2000; flex-direction: column;
-        }
+        .countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 2000; flex-direction: column; }
         .countdown-number { font-size: 9rem; font-weight: 800; color: #f5a623; text-shadow: 0 0 30px rgba(245,166,35,0.5); animation: pulse 0.4s ease; }
         .countdown-text { font-size: 2rem; color: white; margin-top: 24px; letter-spacing: 2px; }
         @keyframes pulse { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         
         /* Ergebnis Popup */
-        .result-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-            display: flex; justify-content: center; align-items: center; z-index: 2000;
-        }
-        .result-card {
-            background: white; border-radius: 60px; padding: 48px 40px; text-align: center;
-            max-width: 360px; width: 90%; animation: slideIn 0.3s ease;
-        }
+        .result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .result-card { background: white; border-radius: 60px; padding: 48px 40px; text-align: center; max-width: 360px; width: 90%; animation: slideIn 0.3s ease; }
         .result-card.win { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
         .result-card.lose { background: linear-gradient(135deg, #ffebee, #ffcdd2); }
         .result-card.draw { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
         .result-icon { font-size: 5rem; margin-bottom: 20px; }
         .result-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
         .result-score { font-size: 1.4rem; color: #2c6b7c; margin: 20px 0; font-weight: 600; }
-        .result-btn {
-            background: #f5a623; border: none; border-radius: 60px; padding: 14px 36px;
-            font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer;
-            box-shadow: 0 5px 0 #b4621a; transform: translateY(-2px);
-            transition: all 0.05s linear;
-        }
+        .result-btn { background: #f5a623; border: none; border-radius: 60px; padding: 14px 36px; font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 5px 0 #b4621a; transform: translateY(-2px); }
         .result-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b4621a; }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
@@ -288,12 +154,11 @@
         @keyframes wrongShake { 0%,100% { transform: translateX(0); background: #f8f9fc; } 25% { transform: translateX(5px); background: #ffe0e0; } 75% { transform: translateX(-5px); background: #ffe0e0; } }
         .correct-animation { animation: correctFlash 0.25s ease; }
         .wrong-animation { animation: wrongShake 0.25s ease; }
-        
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         
         footer { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 20px; }
         .cleanup-notice { font-size: 0.7rem; color: #8ba0aa; margin-top: 12px; }
-        .warning-text { color: #f44336; font-size: 0.75rem; margin-top: 8px; }
+        .host-badge { background: #f5a623; color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -317,7 +182,7 @@
             <div id="roomList" class="room-list"><div style="text-align:center; padding:20px;">Loading...</div></div>
             <button id="refreshRooms" class="modal-btn" style="background:#e9ecef; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">🔄 REFRESH</button>
             <button id="closeRooms" class="modal-btn" style="background:#e9ecef; color:#2c6b7c; box-shadow:0 4px 0 #cbd5e0;">BACK</button>
-            <div class="cleanup-notice">⚠️ Inactive rooms are automatically deleted</div>
+            <div class="cleanup-notice">⚠️ Rooms are only deleted when the host goes offline</div>
         </div>
     </div>
 
@@ -327,6 +192,7 @@
             <div class="spinner"></div>
             <div class="waiting-text">🔍 Waiting for opponent...</div>
             <div class="room-code-box">📌 Room Code: <span class="room-code" id="waitingRoomCode">---</span></div>
+            <div class="cleanup-notice">⚠️ Room will be deleted if you (the host) go offline</div>
             <button id="cancelWaitingBtn" class="btn-action">CANCEL</button>
         </div>
     </div>
@@ -352,6 +218,7 @@
                 </div>
             </div>
             <div class="room-code-box">📌 Room Code: <span class="room-code" id="displayRoomCode">---</span></div>
+            <div class="cleanup-notice" id="cleanupLobbyNotice">⚠️ Room will be deleted if host goes offline</div>
             <button id="readyButton" class="ready-btn">✅ READY</button>
             <button id="cancelLobbyBtn" class="btn-action">🏠 LEAVE</button>
         </div>
@@ -394,7 +261,7 @@
     const db = firebase.database();
 
     const INACTIVE_TIMEOUT = 30000;
-    let heartbeatInterval = null, roomCleanupTimeout = null;
+    let heartbeatInterval = null, hostCheckInterval = null;
 
     const START_TIME = 30, POINTS = 10;
     let score = 0, timeLeft = START_TIME, gameActive = false, timerInt = null, streak = 0, bestStreak = 0;
@@ -402,6 +269,8 @@
     let playerId = null, roomId = null, opponentId = null, playerName = "";
     let isReady = false, gameStarted = false, gameEnded = false, isTestMode = false, botInterval = null;
     let countdownInterval = null;
+    let isHost = false;
+    let hostId = null;
 
     const ops = ['+', '−', '×'];
     function random(m,n){ return Math.floor(Math.random()*(n-m+1))+m; }
@@ -541,14 +410,55 @@
         });
     }
 
+    // Heartbeat für Host-Online-Status
     function startHeartbeat() {
         if(heartbeatInterval) clearInterval(heartbeatInterval);
-        heartbeatInterval = setInterval(() => { if(roomId && playerId && db && !gameStarted && !gameEnded) { db.ref(`pvp_rooms/${roomId}/players/${playerId}/lastActive`).set(Date.now()); } }, 5000);
+        heartbeatInterval = setInterval(() => {
+            if(roomId && playerId && db && !gameStarted && !gameEnded) {
+                db.ref(`pvp_rooms/${roomId}/players/${playerId}/lastActive`).set(Date.now());
+            }
+        }, 5000);
     }
     function stopHeartbeat() { if(heartbeatInterval) clearInterval(heartbeatInterval); }
-    function startRoomCleanupTimer() { if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout); roomCleanupTimeout = setTimeout(() => { if(roomId && !gameStarted && !gameEnded) cleanupRoom(); }, INACTIVE_TIMEOUT); }
-    function resetRoomCleanupTimer() { if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout); startRoomCleanupTimer(); }
-    async function cleanupRoom() { if(roomId && db && !gameStarted && !gameEnded) { await db.ref(`pvp_rooms/${roomId}`).remove(); alert("⚠️ Room closed due to inactivity."); window.location.href = 'index.html'; } }
+
+    // Host-Überwachung (nur für Nicht-Host-Spieler)
+    function startHostMonitoring() {
+        if(hostCheckInterval) clearInterval(hostCheckInterval);
+        hostCheckInterval = setInterval(async () => {
+            if(roomId && db && !gameStarted && !gameEnded && !isHost && hostId) {
+                const hostSnapshot = await db.ref(`pvp_rooms/${roomId}/players/${hostId}`).once('value');
+                const host = hostSnapshot.val();
+                const now = Date.now();
+                const lastActive = host?.lastActive || host?.joinedAt || now;
+                const isHostOnline = (now - lastActive) < INACTIVE_TIMEOUT;
+                
+                if(!isHostOnline && !gameStarted && !gameEnded) {
+                    // Host ist offline -> Raum wird geschlossen
+                    alert("⚠️ The host has gone offline. The room will be closed.");
+                    await db.ref(`pvp_rooms/${roomId}`).remove();
+                    window.location.href = 'index.html';
+                }
+            }
+        }, 10000);
+    }
+    function stopHostMonitoring() { if(hostCheckInterval) clearInterval(hostCheckInterval); }
+
+    // Nur Host löscht den Raum bei Inaktivität
+    function startHostInactivityCleanup() {
+        if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
+        roomCleanupTimeout = setTimeout(async () => {
+            if(roomId && db && !gameStarted && !gameEnded && isHost) {
+                // Nur der Host löscht den Raum bei Inaktivität
+                await db.ref(`pvp_rooms/${roomId}`).remove();
+                if(!gameStarted && !gameEnded) {
+                    alert("⚠️ Room closed due to host inactivity.");
+                    window.location.href = 'index.html';
+                }
+            }
+        }, INACTIVE_TIMEOUT);
+    }
+    let roomCleanupTimeout = null;
+    function resetHostInactivityTimer() { if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout); startHostInactivityCleanup(); }
 
     function setupLobbyListeners(){
         const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
@@ -558,13 +468,16 @@
             const playerIds = Object.keys(players);
             const playerCount = playerIds.length;
             document.getElementById('playerCount').innerHTML = `${playerCount}/2`;
+            
+            // Host anzeigen (Spieler 1 = Host)
             if(playerIds[0]){
                 const p1 = players[playerIds[0]];
-                document.getElementById('player1Name').innerHTML = p1.name;
+                document.getElementById('player1Name').innerHTML = p1.name + (isHost ? ' 👑' : '');
                 const p1Ready = p1.ready || false;
                 document.getElementById('player1Status').innerHTML = p1Ready ? "✅ ready" : "⏳ waiting";
                 document.getElementById('player1Status').className = p1Ready ? "player-status status-ready" : "player-status status-waiting";
                 document.getElementById('player1Card').className = p1Ready ? "player-card ready" : "player-card";
+                if(playerIds[0] === playerId) document.getElementById('player1Card').classList.add('host');
             }
             if(playerIds[1]){
                 const p2 = players[playerIds[1]];
@@ -598,14 +511,33 @@
         playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
         roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
         const now = Date.now();
+        isHost = true;
+        hostId = playerId;
+        
         await db.ref(`pvp_rooms/${roomId}`).set({
-            createdAt: now, creator: playerId,
-            players: { [playerId]: { name: playerName, score: 0, ready: false, finished: false, finalScore: 0, joinedAt: now, lastActive: now } }
+            createdAt: now,
+            creator: playerId,
+            players: {
+                [playerId]: {
+                    name: playerName,
+                    score: 0,
+                    ready: false,
+                    finished: false,
+                    finalScore: 0,
+                    joinedAt: now,
+                    lastActive: now,
+                    isHost: true
+                }
+            }
         });
+        
         document.getElementById('waitingRoomCode').innerHTML = roomId;
         document.getElementById('mainMenu').style.display = 'none';
         document.getElementById('waitingForPlayer').style.display = 'block';
-        startHeartbeat(); startRoomCleanupTimer();
+        
+        startHeartbeat();
+        startHostInactivityCleanup();
+        
         const roomRef = db.ref(`pvp_rooms/${roomId}/players`);
         const waitListener = roomRef.on('value', (snapshot) => {
             const players = snapshot.val();
@@ -616,33 +548,62 @@
                 document.getElementById('lobbyScreen').style.display = 'block';
                 document.getElementById('lobbyRoomCode').innerHTML = roomId;
                 document.getElementById('displayRoomCode').innerHTML = roomId;
-                document.getElementById('player1Name').innerHTML = playerName;
+                document.getElementById('player1Name').innerHTML = playerName + ' 👑';
                 setupLobbyListeners();
-                startRoomCleanupTimer();
+                startHostInactivityCleanup();
             }
         });
-        setTimeout(() => { if(!gameStarted && !gameEnded) { db.ref(`pvp_rooms/${roomId}`).remove(); if(document.getElementById('waitingForPlayer').style.display === 'block') { alert("⏰ No opponent found. Room closed."); window.location.href = 'index.html'; } } }, 60000);
+        
+        setTimeout(() => {
+            if(!gameStarted && !gameEnded && isHost) {
+                db.ref(`pvp_rooms/${roomId}`).remove();
+                if(document.getElementById('waitingForPlayer').style.display === 'block') {
+                    alert("⏰ No opponent found. Room closed.");
+                    window.location.href = 'index.html';
+                }
+            }
+        }, 60000);
     }
 
     async function joinRoom(roomCode){
         playerId = Date.now().toString() + Math.random().toString(36).substr(2,6);
         roomId = roomCode.toUpperCase();
+        isHost = false;
+        
         const roomRef = db.ref(`pvp_rooms/${roomId}`);
         const roomSnap = await roomRef.once('value');
         const room = roomSnap.val();
+        
         if(!room){ alert("Room not found!"); return false; }
         if(room.players && Object.keys(room.players).length >= 2){ alert("Room is full!"); return false; }
+        
+        hostId = room.creator;
         const now = Date.now();
-        await roomRef.child(`players/${playerId}`).set({ name: playerName, score: 0, ready: false, finished: false, finalScore: 0, joinedAt: now, lastActive: now });
+        await roomRef.child(`players/${playerId}`).set({
+            name: playerName,
+            score: 0,
+            ready: false,
+            finished: false,
+            finalScore: 0,
+            joinedAt: now,
+            lastActive: now,
+            isHost: false
+        });
+        
         document.getElementById('mainMenu').style.display = 'none';
         document.getElementById('lobbyScreen').style.display = 'block';
         document.getElementById('lobbyRoomCode').innerHTML = roomId;
         document.getElementById('displayRoomCode').innerHTML = roomId;
+        
         const players = room.players;
         const player1Id = Object.keys(players)[0];
-        document.getElementById('player1Name').innerHTML = players[player1Id]?.name || "Player 1";
+        const hostName = players[player1Id]?.name || "Host";
+        document.getElementById('player1Name').innerHTML = hostName + ' 👑';
         document.getElementById('player2Name').innerHTML = playerName;
-        startHeartbeat(); startRoomCleanupTimer(); setupLobbyListeners();
+        
+        startHeartbeat();
+        startHostMonitoring();
+        setupLobbyListeners();
         return true;
     }
 
@@ -655,15 +616,20 @@
         readyBtn.innerHTML = "✅ READY";
         readyBtn.classList.add('ready-clicked');
         readyBtn.disabled = true;
-        resetRoomCleanupTimer();
+        if(isHost) resetHostInactivityTimer();
     }
 
     async function cancelGame(){
-        stopHeartbeat(); if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
+        stopHeartbeat();
+        stopHostMonitoring();
+        if(roomCleanupTimeout) clearTimeout(roomCleanupTimeout);
         if(roomId && playerId && db && !isTestMode){
             await db.ref(`pvp_rooms/${roomId}/players/${playerId}`).remove();
             const remaining = await db.ref(`pvp_rooms/${roomId}/players`).once('value');
-            if(!remaining.exists()) await db.ref(`pvp_rooms/${roomId}`).remove();
+            // Nur wenn der Host geht oder keine Spieler mehr da sind, Raum löschen
+            if(!remaining.exists() || (isHost && Object.keys(remaining.val()).length === 0)) {
+                await db.ref(`pvp_rooms/${roomId}`).remove();
+            }
         }
         window.location.href = 'index.html';
     }
@@ -681,13 +647,15 @@
                 if(playerCount < 2){
                     const players = room.players;
                     if(players) {
-                        const hostId = room.creator;
-                        const host = players[hostId];
+                        const hostIdCheck = room.creator;
+                        const host = players[hostIdCheck];
                         const lastActive = host?.lastActive || host?.joinedAt || now;
                         const isHostActive = (now - lastActive) < INACTIVE_TIMEOUT;
-                        if(isHostActive || playerCount === 1) {
+                        if(isHostActive) {
                             html += `<div class="room-item" onclick="joinRoomFromList('${code}')"><div><span class="room-code">📌 ${code}</span><br><small>${playerCount}/2 players</small></div><button style="background:#f5a623; border:none; padding:6px 20px; border-radius:40px; color:white; font-weight:600; cursor:pointer; box-shadow:0 3px 0 #b4621a; transform:translateY(-1px);">JOIN</button></div>`;
-                        } else { db.ref(`pvp_rooms/${code}`).remove(); }
+                        } else {
+                            db.ref(`pvp_rooms/${code}`).remove();
+                        }
                     }
                 }
             }
